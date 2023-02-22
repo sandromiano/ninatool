@@ -20,6 +20,10 @@ $E_\mathrm{U} = \dfrac{\Phi_0 I_\mathrm{U}}{2\pi}$
 
 where $\Phi_0 \approx 2.067 \times 10^{-15}$ Wb is the magnetic flux quantum.
 
+Phase units are in radians.
+
+Flux units are $F_\mathrm{U} = \dfrac{\Phi_0}{2\pi}$.
+
 # installation instructions
 
 To install NINA, execute "pip install ." in the package directory.
