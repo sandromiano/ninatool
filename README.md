@@ -28,7 +28,7 @@ Flux units are $F_\mathrm{U} = \dfrac{\Phi_0}{2\pi}$.
 
 To install NINA, execute "pip install ." in the package directory.
 
-If you install NINA in a conda environment, be sure to have PyQt5-dependent installations already installed via conda, or the "pip install ." might break some functionalities. This will be fixed in the future with a dedicated conda installer.
+If you install NINA in a conda environment, be sure to have PyQt5-dependent installations already installed via conda, or the "pip install ." command might break some functionalities. This will be fixed in the future with a dedicated conda installer.
 
 It is important to not install NINA as a .egg (DON'T execute "python setup.py install"), as it will fail to load some necessary .txt files.
 
