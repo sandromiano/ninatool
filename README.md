@@ -1,4 +1,4 @@
-#ninatool
+###ninatool
 
 The 'Nonlinear Inductive Network Analyzer' (NINA) tool is a python package to analyze superconducting circuits, based on the theory presented 
 in the paper 'Hamiltonian extrema of an arbitrary Josephson circuit' (https://arxiv.org/abs/2302.03155).
