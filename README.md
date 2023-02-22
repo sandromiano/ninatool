@@ -13,11 +13,9 @@ NINA uses dimensionless units for currents, inductances and energies.
 
 Typically, the user would first fix the desired current_units, then the inductance and energy units can be derived from current_units as:
 
-inductance_units = Phi0/(2 * pi * current_units)
+inductance_units = $\Phi_0$/(2 * pi * current_units)
 energy_units = Phi0 * current_units / (2 * pi)
-$$
-where \Phi_0 \approx 2.067e^{-15}Wb
-$$
+where $\Phi_0 \approx 2.067e^{-15}Wb$
 # installation instructions
 
 To install NINA, execute "pip install ." in the package directory.
