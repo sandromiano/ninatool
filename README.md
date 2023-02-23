@@ -30,6 +30,10 @@ $E_\mathrm{U} = \dfrac{\Phi_0 I_\mathrm{U}}{2\pi}$
 
 where $\Phi_0 \approx 2.067 \times 10^{-15}$ Wb is the magnetic flux quantum.
 
+Phase units are in radians.
+
+Flux is in units of $\frac{\Phi_0}{2\pi}$, so can be considered as a phase.
+
 # installation instructions
 
 NINA requires the following packages:
