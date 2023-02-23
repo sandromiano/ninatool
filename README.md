@@ -22,11 +22,21 @@ where $\Phi_0 \approx 2.067 \times 10^{-15}$ Wb is the magnetic flux quantum.
 
 # installation instructions
 
+NINA requires the following packages:
+
+- numpy (mandatory)
+- sympy (mandatory)
+- PyQt5 (for GUI)
+- pyqtgraph (for GUI)
+- jupyter (for examples)
+- matplotlib (for examples)
+
+
+If you install NINA in a conda environment, make sure to have the required packages installed via 'conda install [package_name]'.
+
 To install NINA, execute "pip install ." in the package directory.
 
-If you install NINA in a conda environment, be sure to have PyQt5-dependent installations already installed via conda, or the "pip install ." might break some functionalities. This will be fixed in the future with a dedicated conda installer.
-
-It is important to not install NINA as a .egg (DON'T execute "python setup.py install"), as it will fail to load some necessary .txt files.
+It is important to not install NINA as a .egg (i.e. DON'T execute "python setup.py install"), as it will fail to load some necessary .txt files.
 
 # citing NINA
 

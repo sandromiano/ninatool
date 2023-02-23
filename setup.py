@@ -12,5 +12,5 @@ setup(
       packages = ['ninatool', 'ninatool.internal', 'ninatool.internal.mapping_functions', 'ninatool.circuits', 'ninatool.gui'],
       package_data = {'ninatool.internal.mapping_functions' : ['*.txt']},
       include_package_data = True,
-      install_requires = ['numpy', 'sympy', 'PyQt5', 'pyqtgraph', 'matplotlib']
+      install_requires = []
       )
