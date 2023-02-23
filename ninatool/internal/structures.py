@@ -328,6 +328,10 @@ class loop(Nlind):
         return(self.associated_branch.free_element)
     
     @property
+    def multivalued(self):
+        return(self.associated_branch.multivalued)
+    
+    @property
     def left_elements(self):
         return(self.__left_elements)
 
