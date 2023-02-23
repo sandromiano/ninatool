@@ -2,7 +2,15 @@ import sympy as sp
 import numpy as np
 from .support_functions import invert_representation_partial, \
                                series_combination_partial
- 
+
+
+def check_real_number(value):
+    if isinstance(value, float) or isinstance(value, int):
+        return(True)
+    else:
+        return(False)
+
+
 class Nlind(object) :
     '''
     Nlind describes an abstract nonlinear inductance. Is the main parent
@@ -153,6 +161,14 @@ class Nlind(object) :
 
     @phi.setter
     def phi(self, phi):
+        
+        if not isinstance(phi, np.ndarray):
+            if check_real_number(phi):
+                phi = np.array([phi])
+            else:
+                raise ValueError("Cannot set " + self.name + ".phi. Value " +\
+                                 "needs to be either an array or real number.")
+        
         self.__phi = phi
         self.calc_current()
         self.calc_potential()
