@@ -13,9 +13,3 @@ rfsquid = loop(left_branch = [J0, L0], right_branch = [L1], name = 'rfsquid')
 rfsquid.free_phi = np.linspace(-1,1,101) * 2 * np.pi
 
 plt.plot(rfsquid.flux, rfsquid.adm[0])
-
-rfsquid.interpolate_results(np.linspace(-1,1,101) * 2 * np.pi)
-
-plt.scatter(rfsquid.flux, rfsquid.adm[0])
-for flux in rfsquid.flux:
-    plt.axvline(flux)

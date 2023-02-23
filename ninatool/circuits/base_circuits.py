@@ -35,8 +35,7 @@ class dcsquid(loop):
         self.L0 = L(L0, order = order, name = 'L0')
         self.J1 = J(i1, order = order, name = 'J1')
         self.L1 = L(L1, order = order, name = 'L1')
-
-
+ 
         left_branch = [self.J0, self.L0]
         right_branch = [self.J1, self.L1]
         

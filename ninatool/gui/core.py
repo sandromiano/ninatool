@@ -104,10 +104,25 @@ class mainwindow(QtWidgets.QMainWindow):
         self.xaxisBox = QtWidgets.QComboBox()
         self.yaxisBox = QtWidgets.QComboBox()
         
+        xaxisLabel = QtWidgets.QLabel()
+        yaxisLabel = QtWidgets.QLabel()
+        
+        xaxisLabel.setText('X axis')
+        yaxisLabel.setText('Y axis')
+        
+        xaxisbox_wlabel = QtWidgets.QVBoxLayout()
+        yaxisbox_wlabel = QtWidgets.QVBoxLayout()
+        
+        xaxisbox_wlabel.addWidget(xaxisLabel)
+        xaxisbox_wlabel.addWidget(self.xaxisBox)
+        
+        yaxisbox_wlabel.addWidget(yaxisLabel)
+        yaxisbox_wlabel.addWidget(self.yaxisBox)
+        
         self.axesBox = QtWidgets.QHBoxLayout()
         
-        self.axesBox.addWidget(self.xaxisBox)
-        self.axesBox.addWidget(self.yaxisBox)
+        self.axesBox.addLayout(xaxisbox_wlabel)
+        self.axesBox.addLayout(yaxisbox_wlabel)
         
         self.populate_axesBox()
     

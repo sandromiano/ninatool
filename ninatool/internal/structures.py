@@ -4,8 +4,6 @@ from numpy import pi
 from .elements import Nlind, L
 from .support_functions import check_order
 
-logging.basicConfig(level = None)
-
 NUM_POINTS = 1001 # number of points for default phase array
 NUM_PERIODS = 2 # number of periods for default phase array
 
