@@ -167,9 +167,10 @@ class mainwindow(QtWidgets.QMainWindow):
     def create_plot(self):
         
         self.graphWidget = pg.PlotWidget()
-        pen = pg.mkPen(color=(0, 255, 150), width= 3)
+        pen = pg.mkPen(color=(0, 255, 150), width= 2)
         self.graphWidget.setBackground('k')
         self.plot = self.graphWidget.plot(pen = pen)
+        self.plot.showGrid(True, True, 1)
     
     def create_plotLayout(self):
         
