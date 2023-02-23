@@ -22,7 +22,7 @@ the inductance units
 $L_\mathrm{U}$ 
 and energy units
 $E_\mathrm{U}$ 
-can be derived from current_units as:
+can be derived from the current units as:
 
 $L_\mathrm{U} = \dfrac{\Phi_0}{2\pi I_\mathrm{U}}$ 
 
