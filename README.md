@@ -15,7 +15,7 @@ more general structures will be available in the future).
 
 # units
 
-NINA uses dimensionless units for currents, inductances and energies.
+NINA uses dimensionless units for electrical variables.
 
 Typically, the user would first fix the desired current units $I_\mathrm{U}$, then 
 the inductance units 
