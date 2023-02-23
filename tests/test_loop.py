@@ -12,7 +12,10 @@ rfsquid = loop(left_branch = [J0, L0], right_branch = [L1], name = 'rfsquid')
 ### SETS PHASE OF THE FREE ELEMENT IN THE RFSQUID
 rfsquid.free_phi = np.linspace(-1,1,101) * 2 * np.pi
 
-plt.plot(rfsquid.flux, rfsquid.adm[0], label = 'J0.ic=' + str(J0.ic))
-J0.ic = .75
-plt.plot(rfsquid.flux, rfsquid.adm[0], label = 'J0.ic=' + str(J0.ic))
-plt.legend()
+plt.plot(rfsquid.flux, rfsquid.adm[0])
+
+rfsquid.interpolate_results(np.linspace(-1,1,101) * 2 * np.pi)
+
+plt.scatter(rfsquid.flux, rfsquid.adm[0])
+for flux in rfsquid.flux:
+    plt.axvline(flux)

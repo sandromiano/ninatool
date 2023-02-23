@@ -383,3 +383,8 @@ class loop(Nlind):
         
         logging.debug('called update method of loop ' + str(self.name))
         self.calc_coeffs()
+        
+    def interpolate_results(self, phi_grid = default_phase_array):
+        
+        self.associated_branch.interpolate_results(phi_grid = phi_grid)
+        self.update()
