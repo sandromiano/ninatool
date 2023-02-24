@@ -19,7 +19,8 @@ class branch(Nlind):
                  elements = [L(1)],
                  is_free = True, 
                  name = '', 
-                 observe_elements = True):
+                 observe_elements = True,
+                 manipulate_elements = True):
         '''
         Parameters
         ----------
@@ -32,6 +33,10 @@ class branch(Nlind):
         observe_elements : BOOL, optional
             Defines if the branch has to be updated when any of its elements
             is modified. Default is TRUE.
+        manipulate_elements : BOOL, optional
+            Defines if the branch is allowed to manipulate its elements. 
+            Can be set to false to define a branch which only computes its 
+            properties once those of its elements are known. Default is TRUE.
         '''
         order = check_order(elements)
         super().__init__(order = order)
@@ -43,18 +48,17 @@ class branch(Nlind):
         self.__is_linear = False
         self.__is_free = is_free
         self.__free_element = None
-        self.__free_phi = None
+        self.__free_phi = default_phase_array
         self.__multivalued = False
+        self.__manipulate_elements = manipulate_elements
         #parses the branch to identify the free JJ and the constrained elements
         self.parse()
         #if required, the branch subscribes to receive update 
         #notifications from its elements.
-        if observe_elements:
+        if self.__manipulate_elements and observe_elements:
             self.subscribe()
-        
-        #this is a hack, shouldn't be done like this.
-        if self.is_free:
-            self.solve()
+        #solves the branch
+        self.solve()
     ### BRANCH SPECIFIC GETTERS ###
     
     @property
@@ -76,6 +80,10 @@ class branch(Nlind):
     @property
     def free_phi(self):
         return(self.__free_phi)
+    
+    @property
+    def beta(self):
+        return(self.__beta)
     
     @property
     def multivalued(self):
@@ -103,14 +111,16 @@ class branch(Nlind):
     @free_phi.setter
     def free_phi(self, value):
         logging.debug('called free_phi setter of branch ' + str(self.name))
-        
-        self.__free_phi = value
-        if self.is_free:
-            self.free_element.phi = self.free_phi
-            #if only the free phase is changed, no need to re-parse.
-            self.update(parse = False)
+        if self.__manipulate_elements:
+            self.__free_phi = value
+            if self.is_free:
+                self.free_element.phi = self.free_phi
+                #if only the free phase is changed, no need to re-parse.
+                self.update(parse = False)
+            else:
+                print(self.name + ' is constrained, free phase cannot be set.')
         else:
-            print('Branch is constrained, free phase cannot be set.')
+            print(self.name + ' is not allowed to manipulate elements.')
     
     @Nlind.i.setter 
     def i(self, i):
@@ -171,13 +181,17 @@ class branch(Nlind):
             for element in self.constrained_elements:
                 if element.kind == 'J':
                     element.is_free = False
-            
+                    
             if self.__is_free:
                 self.check_multivalued()
                 #updates the new free element with the previously defined
                 #free phase of the branch. Necessary if, after a parameter
                 #change, a previously constrained JJ becomes the free JJ.
-                if self.free_phi is not None:
+                
+                #free_element.phi is only assigned here if the branch is
+                #allowed to manipulate the elements and has already been
+                #assigned a free_phi value
+                if self.__manipulate_elements and self.free_phi is not None:
                     self.free_element.phi = self.free_phi
             
     def check_multivalued(self):
@@ -186,8 +200,10 @@ class branch(Nlind):
         
         self.__constrained_L0 = \
             sum(other.L0 for other in self.__constrained_elements)
-
-        if self.free_element.L0 < self.__constrained_L0 and self.__is_free:
+        
+        self.__beta = self.__constrained_L0 / self.free_element.L0
+        
+        if self.beta < 1 and self.__is_free:
             logging.info('Branch ' + str(self.name) + ' is multivalued.')
             self.__multivalued = True
         else:
@@ -195,12 +211,14 @@ class branch(Nlind):
 
     def solve(self):
         logging.debug('called solve method of branch ' + str(self.name))
-        
-
-        self._Nlind__i = self.free_element.i
-
-        for elem in self.constrained_elements:
-            elem.i = self._Nlind__i
+        #the solver assigns current to constrained elements only if is
+        #allowed to manipulate elements. Otherwise, it just calculates
+        #its own quantities.
+        if self.__manipulate_elements:
+            self._Nlind__i = self.free_element.i
+    
+            for elem in self.constrained_elements:
+                elem.i = self._Nlind__i
 
         self.calc_all()
     
@@ -296,11 +314,35 @@ class loop(Nlind):
         
         self._Nlind__kind = "loop"
         self._Nlind__name = name
-
+        #the associated branch is responsible for computing the equilibrium
+        #points of the loop
         self.__associated_branch = branch(elements = self.elements, 
                                           observe_elements = True,
                                           name = self.name + 
                                           '.associated_branch')
+        #left and right branch are responsible for computing the expansion
+        #coefficients of each arm of the dipole, after the associated branch
+        #has computed the equilibium points. left and right branches CANNOT
+        #manipulate the elements.
+        self.left_branch = branch(elements = self.left_elements,
+                             observe_elements = False,
+                             is_free = self.free_element in self.left_elements,
+                             name = self.name + '.left_branch',
+                             manipulate_elements = False)
+        
+        #creates a mask array to invert the sign of odd coefficients for left
+        #branch (default choice in the paper). Necessary to correctly compute 
+        #the dipole admittance when solving the loop equilibrium points via 
+        #the associated branch.
+        adm_mask_list = [(-1) ** i for i in range(self.order)]
+        #the reshape allows consistent ndarray operations
+        self.adm_mask = np.array(adm_mask_list).reshape(self.order, 1)
+        
+        self.right_branch = branch(elements = self.right_elements,
+                              observe_elements = False,
+                              is_free = self.free_element in self.right_elements,
+                              name = self.name + '.right_branch',
+                              manipulate_elements = False)
         
         if observe_associated:
             self.subscribe()
@@ -337,6 +379,13 @@ class loop(Nlind):
     def right_elements(self):
         return(self.__right_elements)
 
+    @property
+    def left_adm(self):
+        return(self.left_branch.adm * self.adm_mask)
+    
+    @property
+    def right_adm(self):
+        return(self.right_branch.adm)
     ### LOOP-SPECIFIC SETTERS ###
 
     @free_phi.setter
@@ -357,33 +406,25 @@ class loop(Nlind):
     def calc_coeffs(self):
         
         logging.debug('called calc_coeffs method of loop ' + str(self.name))
-        #these internal branches do not have to observe elements, otherwis
+        #these internal branches do not have to observe elements, otherwise
         #will overwrite the associated branch as observer.
         #In future, the associated branch will not be used and then these
         #internal branches will have to be updated.
-        left_branch = branch(elements = self.left_elements,
-                             observe_elements = False,
-                             is_free = self.free_element in self.left_elements,
-                             name = self.name + '.left_branch')
         
-        right_branch = branch(elements = self.right_elements,
-                              observe_elements = False,
-                              is_free = self.free_element in self.right_elements,
-                              name = self.name + '.right_branch')
+        self.left_branch.calc_coeffs()
+        self.right_branch.calc_coeffs()
         
-        left_branch.calc_coeffs()
-        right_branch.calc_coeffs()
-        
-        left_adm = left_branch.adm
-        right_adm = right_branch.adm
         #odd coefficients of one of the branches have to be inverted.
-        left_adm[1::2] = - left_adm[1::2]
 
-        self.adm = left_adm + right_adm
+        self.adm = self.left_adm + self.right_adm
         
     def update(self):
         
         logging.debug('called update method of loop ' + str(self.name))
+        
+        self.left_branch.is_free = self.free_element in self.left_elements
+        self.right_branch.is_free = self.free_element in self.right_elements
+
         self.calc_coeffs()
         
     def interpolate_results(self, phi_grid = default_phase_array):

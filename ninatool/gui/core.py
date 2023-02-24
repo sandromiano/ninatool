@@ -28,29 +28,28 @@ class J_widget(QtWidgets.QWidget):
         
         self.J = J_object
         self.signal = updated_signal()
-        self.create_JJbox()
+        self.create_jBox()
     
-    def create_JJbox(self):
+    def create_jBox(self):
         
-        sbox = QtWidgets.QDoubleSpinBox(self)
-        sbox.setMinimum(0.01)
-        sbox.setMaximum(1e3)
-        sbox.setSingleStep(0.01)
-        sbox.setValue(self.J.ic)
-        sbox.valueChanged.connect(self.update_ic)
+        jSpinBox = QtWidgets.QDoubleSpinBox(self)
+        jSpinBox.setMinimum(0.01)
+        jSpinBox.setMaximum(1e3)
+        jSpinBox.setSingleStep(0.01)
+        jSpinBox.setValue(self.J.ic)
+        jSpinBox.valueChanged.connect(self.update_ic)
         
-        label = QtWidgets.QLabel(self.J.name + '.ic', self)
+        jLabel = QtWidgets.QLabel(self.J.name + '.ic', self)
         
-        vbox = QtWidgets.QVBoxLayout()
-        vbox.addWidget(label)
-        vbox.addWidget(sbox)
+        jBox = QtWidgets.QVBoxLayout()
+        jBox.addWidget(jLabel)
+        jBox.addWidget(jSpinBox)
         
-        self.setLayout(vbox)
+        self.setLayout(jBox)
         
     def update_ic(self, value):
         self.J.ic = value
         self.signal.updated.emit()
-        
         
 class L_widget(QtWidgets.QWidget):
     
@@ -60,24 +59,24 @@ class L_widget(QtWidgets.QWidget):
         
         self.L = L_object
         self.signal = updated_signal()
-        self.create_Lbox()
+        self.create_lBox()
     
-    def create_Lbox(self):
+    def create_lBox(self):
         
-        sbox = QtWidgets.QDoubleSpinBox(self)
-        sbox.setMinimum(0.01)
-        sbox.setMaximum(1e3)
-        sbox.setSingleStep(0.01)
-        sbox.setValue(self.L.L0)
-        sbox.valueChanged.connect(self.update_L0)
+        lSpinBox = QtWidgets.QDoubleSpinBox(self)
+        lSpinBox.setMinimum(0.01)
+        lSpinBox.setMaximum(1e3)
+        lSpinBox.setSingleStep(0.01)
+        lSpinBox.setValue(self.L.L0)
+        lSpinBox.valueChanged.connect(self.update_L0)
         
-        label = QtWidgets.QLabel(self.L.name + '.L0', self)
+        lLabel = QtWidgets.QLabel(self.L.name + '.L0', self)
         
-        vbox = QtWidgets.QVBoxLayout()
-        vbox.addWidget(label)
-        vbox.addWidget(sbox)
+        lBox = QtWidgets.QVBoxLayout()
+        lBox.addWidget(lLabel)
+        lBox.addWidget(lSpinBox)
         
-        self.setLayout(vbox)
+        self.setLayout(lBox)
         
     def update_L0(self, value):
         self.L.L0 = value
