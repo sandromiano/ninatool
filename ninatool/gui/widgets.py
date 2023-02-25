@@ -1,66 +1,48 @@
 from PyQt5 import QtWidgets
+import pyqtgraph as pg
 from .util import updated_signal
 
-class JWidget(QtWidgets.QWidget):
+class elementWidget(QtWidgets.QWidget):
     
-    def __init__(self, J_object):
+    def __init__(self, element):
         
         super().__init__()
-        
-        self.J = J_object
+        self.element = element
         self.signal = updated_signal()
-        self.create_jBox()
+        self.create_elementBox()
     
-    def create_jBox(self):
+    def create_elementBox(self):
         
-        jSpinBox = QtWidgets.QDoubleSpinBox(self)
-        jSpinBox.setMinimum(0.01)
-        jSpinBox.setMaximum(1e3)
-        jSpinBox.setSingleStep(0.01)
-        jSpinBox.setValue(self.J.ic)
-        jSpinBox.valueChanged.connect(self.update_ic)
+        elementSpinBox = QtWidgets.QDoubleSpinBox(self)
+        elementSpinBox.setMaximumWidth(100)
+        elementSpinBox.setMinimum(0.01)
+        elementSpinBox.setMaximum(1e3)
+        elementSpinBox.setSingleStep(0.01)
         
-        jLabel = QtWidgets.QLabel(self.J.name + '.ic', self)
+        if self.element.kind == 'J':    
+            parString = '.ic'
+            elementSpinBox.setValue(self.element.ic)
+        elif self.element.kind == 'L':
+            parString = '.L0'
+            elementSpinBox.setValue(self.element.L0)
+            
+        elementLabel = QtWidgets.QLabel(self.element.name + parString)
+        
+        elementSpinBox.valueChanged.connect(self.update)
         
         jBox = QtWidgets.QVBoxLayout()
-        jBox.addWidget(jLabel)
-        jBox.addWidget(jSpinBox)
+        jBox.addWidget(elementLabel)
+        jBox.addWidget(elementSpinBox)
         
         self.setLayout(jBox)
         
-    def update_ic(self, value):
-        self.J.ic = value
-        self.signal.updated.emit()
+    def update(self, value):
         
-class LWidget(QtWidgets.QWidget):
-    
-    def __init__(self, L_object):
-        
-        super().__init__()
-        
-        self.L = L_object
-        self.signal = updated_signal()
-        self.create_lBox()
-    
-    def create_lBox(self):
-        
-        lSpinBox = QtWidgets.QDoubleSpinBox(self)
-        lSpinBox.setMinimum(0.01)
-        lSpinBox.setMaximum(1e3)
-        lSpinBox.setSingleStep(0.01)
-        lSpinBox.setValue(self.L.L0)
-        lSpinBox.valueChanged.connect(self.update_L0)
-        
-        lLabel = QtWidgets.QLabel(self.L.name + '.L0', self)
-        
-        lBox = QtWidgets.QVBoxLayout()
-        lBox.addWidget(lLabel)
-        lBox.addWidget(lSpinBox)
-        
-        self.setLayout(lBox)
-        
-    def update_L0(self, value):
-        self.L.L0 = value
+        if self.element.kind == 'J':    
+            self.element.ic = value
+        elif self.element.kind == 'L':
+            self.element.L0 = value
+
         self.signal.updated.emit()
         
 class axisWidget(QtWidgets.QWidget):
@@ -70,6 +52,7 @@ class axisWidget(QtWidgets.QWidget):
         super().__init__()
         
         self.Combo = QtWidgets.QComboBox()
+        self.Combo.setMaximumWidth(200)
         
         Label = QtWidgets.QLabel()
         Label.setText(label)
@@ -83,3 +66,29 @@ class axisWidget(QtWidgets.QWidget):
         
     def addItem(self, item):
         self.Combo.addItem(item)
+        
+class plotWidget(QtWidgets.QWidget):
+    
+    def __init__(self):
+        
+        super().__init__()
+        
+        self.graphWidget = pg.PlotWidget()
+        self.graphWidget.setBackground('k')
+        self.graphWidget.showGrid(x = True, y = True)
+        
+        pen = pg.mkPen(color=(0, 255, 150), width= 2)
+        self.plot = self.graphWidget.plot(pen = pen)
+        
+        self.xaxisWidget = axisWidget(label = 'X axis')
+        self.yaxisWidget = axisWidget(label = 'Y axis')
+      
+        self.axesBox = QtWidgets.QHBoxLayout()
+        self.axesBox.addWidget(self.xaxisWidget)
+        self.axesBox.addWidget(self.yaxisWidget)  
+      
+        plotLayout = QtWidgets.QVBoxLayout()
+        plotLayout.addLayout(self.axesBox)
+        plotLayout.addWidget(self.graphWidget)
+        
+        self.setLayout(plotLayout)

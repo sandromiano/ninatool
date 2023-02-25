@@ -324,12 +324,15 @@ class loop(Nlind):
         #coefficients of each arm of the dipole, after the associated branch
         #has computed the equilibium points. left and right branches CANNOT
         #manipulate the elements.
+        #these branches do not have to observe elements, otherwise
+        #will overwrite the associated branch as observer.
+        #In future, the associated branch will not be used and then these
+        #internal branches will have to be updated.
         self.left_branch = branch(elements = self.left_elements,
-                             observe_elements = False,
-                             is_free = self.free_element in self.left_elements,
-                             name = self.name + '.left_branch',
-                             manipulate_elements = False)
-        
+                                  observe_elements = False,
+                                  is_free = self.free_element in self.left_elements,
+                                  name = self.name + '.left_branch',
+                                  manipulate_elements = False)
         #creates a mask array to invert the sign of odd coefficients for left
         #branch (default choice in the paper). Necessary to correctly compute 
         #the dipole admittance when solving the loop equilibrium points via 
@@ -339,10 +342,10 @@ class loop(Nlind):
         self.adm_mask = np.array(adm_mask_list).reshape(self.order, 1)
         
         self.right_branch = branch(elements = self.right_elements,
-                              observe_elements = False,
-                              is_free = self.free_element in self.right_elements,
-                              name = self.name + '.right_branch',
-                              manipulate_elements = False)
+                                   observe_elements = False,
+                                   is_free = self.free_element in self.right_elements,
+                                   name = self.name + '.right_branch',
+                                   manipulate_elements = False)
         
         if observe_associated:
             self.subscribe()
@@ -406,15 +409,9 @@ class loop(Nlind):
     def calc_coeffs(self):
         
         logging.debug('called calc_coeffs method of loop ' + str(self.name))
-        #these internal branches do not have to observe elements, otherwise
-        #will overwrite the associated branch as observer.
-        #In future, the associated branch will not be used and then these
-        #internal branches will have to be updated.
         
         self.left_branch.calc_coeffs()
         self.right_branch.calc_coeffs()
-        
-        #odd coefficients of one of the branches have to be inverted.
 
         self.adm = self.left_adm + self.right_adm
         
