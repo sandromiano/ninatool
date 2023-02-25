@@ -1,86 +1,10 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtSignal, QObject
 import pyqtgraph as pg
 from functools import partial
+from .util import element_adm, element_i, element_phi
+from .widgets import JWidget, LWidget, axisWidget
 
-def element_adm(element, index):
-    return (element.adm[index])
 
-def element_phi(element):
-    return (element.phi)
-
-def element_i(element):
-    return (element.i)
-
-class updated_signal(QObject):
-    
-    updated = pyqtSignal()
-    
-    def __init__(self):
-        super().__init__()
-        pass
-
-class J_widget(QtWidgets.QWidget):
-    
-    def __init__(self, J_object):
-        
-        super().__init__()
-        
-        self.J = J_object
-        self.signal = updated_signal()
-        self.create_jBox()
-    
-    def create_jBox(self):
-        
-        jSpinBox = QtWidgets.QDoubleSpinBox(self)
-        jSpinBox.setMinimum(0.01)
-        jSpinBox.setMaximum(1e3)
-        jSpinBox.setSingleStep(0.01)
-        jSpinBox.setValue(self.J.ic)
-        jSpinBox.valueChanged.connect(self.update_ic)
-        
-        jLabel = QtWidgets.QLabel(self.J.name + '.ic', self)
-        
-        jBox = QtWidgets.QVBoxLayout()
-        jBox.addWidget(jLabel)
-        jBox.addWidget(jSpinBox)
-        
-        self.setLayout(jBox)
-        
-    def update_ic(self, value):
-        self.J.ic = value
-        self.signal.updated.emit()
-        
-class L_widget(QtWidgets.QWidget):
-    
-    def __init__(self, L_object):
-        
-        super().__init__()
-        
-        self.L = L_object
-        self.signal = updated_signal()
-        self.create_lBox()
-    
-    def create_lBox(self):
-        
-        lSpinBox = QtWidgets.QDoubleSpinBox(self)
-        lSpinBox.setMinimum(0.01)
-        lSpinBox.setMaximum(1e3)
-        lSpinBox.setSingleStep(0.01)
-        lSpinBox.setValue(self.L.L0)
-        lSpinBox.valueChanged.connect(self.update_L0)
-        
-        lLabel = QtWidgets.QLabel(self.L.name + '.L0', self)
-        
-        lBox = QtWidgets.QVBoxLayout()
-        lBox.addWidget(lLabel)
-        lBox.addWidget(lSpinBox)
-        
-        self.setLayout(lBox)
-        
-    def update_L0(self, value):
-        self.L.L0 = value
-        self.signal.updated.emit()
         
 class mainwindow(QtWidgets.QMainWindow):
     
@@ -100,44 +24,27 @@ class mainwindow(QtWidgets.QMainWindow):
     
     def create_axesBox(self):
         
-        self.xaxisBox = QtWidgets.QComboBox()
-        self.yaxisBox = QtWidgets.QComboBox()
-        
-        xaxisLabel = QtWidgets.QLabel()
-        yaxisLabel = QtWidgets.QLabel()
-        
-        xaxisLabel.setText('X axis')
-        yaxisLabel.setText('Y axis')
-        
-        xaxisbox_wlabel = QtWidgets.QVBoxLayout()
-        yaxisbox_wlabel = QtWidgets.QVBoxLayout()
-        
-        xaxisbox_wlabel.addWidget(xaxisLabel)
-        xaxisbox_wlabel.addWidget(self.xaxisBox)
-        
-        yaxisbox_wlabel.addWidget(yaxisLabel)
-        yaxisbox_wlabel.addWidget(self.yaxisBox)
+        self.xaxisWidget = axisWidget(label = 'X axis')
+        self.yaxisWidget = axisWidget(label = 'Y axis')
         
         self.axesBox = QtWidgets.QHBoxLayout()
-        
-        self.axesBox.addLayout(xaxisbox_wlabel)
-        self.axesBox.addLayout(yaxisbox_wlabel)
-        
+        self.axesBox.addWidget(self.xaxisWidget)
+        self.axesBox.addWidget(self.yaxisWidget)
         self.populate_axesBox()
-    
-        self.xaxisBox.currentIndexChanged.connect(self.update_axes)
-        self.yaxisBox.currentIndexChanged.connect(self.update_axes)
+        
+        self.xaxisWidget.Combo.currentIndexChanged.connect(self.update_axes)
+        self.yaxisWidget.Combo.currentIndexChanged.connect(self.update_axes)
     
     def update_axes(self):
-        self.xdata = self.axesDict[self.xaxisBox.currentText()]()
-        self.ydata = self.axesDict[self.yaxisBox.currentText()]()
+        self.xdata = self.axesDict[self.xaxisWidget.Combo.currentText()]()
+        self.ydata = self.axesDict[self.yaxisWidget.Combo.currentText()]()
         self.update_plot()
         
     def populate_axesBox(self):
         
         if self.structure.kind == 'branch':
             axisName = self.structure.name
-            for axisBox in [self.xaxisBox, self.yaxisBox]:
+            for axisBox in [self.xaxisWidget.Combo, self.yaxisWidget.Combo]:
                 axisBox.addItem(axisName + '.phi')
                 axisBox.addItem(axisName + '.i')
                 
@@ -153,7 +60,7 @@ class mainwindow(QtWidgets.QMainWindow):
             
         if self.structure.kind == 'loop':
             axisName = self.structure.name
-            for axisBox in [self.xaxisBox, self.yaxisBox]:
+            for axisBox in [self.xaxisWidget.Combo, self.yaxisWidget.Combo]:
                 axisBox.addItem(axisName + '.flux')
                 
                 for i in range(self.structure.order):
@@ -166,7 +73,7 @@ class mainwindow(QtWidgets.QMainWindow):
                 
         for element in self.structure.elements:
             axisName = element.name
-            for axisBox in [self.xaxisBox, self.yaxisBox]:
+            for axisBox in [self.xaxisWidget.Combo, self.yaxisWidget.Combo]:
                 axisBox.addItem(axisName + '.phi')
                 axisBox.addItem(axisName + '.i')
                 
@@ -186,7 +93,6 @@ class mainwindow(QtWidgets.QMainWindow):
         self.graphWidget.showGrid(x = True, y = True)
         self.plot = self.graphWidget.plot(pen = pen)
 
-    
     def create_plotLayout(self):
         
         self.plotlayout = QtWidgets.QVBoxLayout()
@@ -197,9 +103,9 @@ class mainwindow(QtWidgets.QMainWindow):
         
         for element in self.elements:
             if element.kind == 'J':
-                widget = J_widget(element)
+                widget = JWidget(element)
             if element.kind == 'L':
-                widget = L_widget(element)
+                widget = LWidget(element)
             
             widget.signal.updated.connect(self.update_axes)
             self.elements_box.addWidget(widget)
@@ -224,6 +130,6 @@ class mainwindow(QtWidgets.QMainWindow):
         
     def update_plot(self):
         
-        self.graphWidget.setLabel('bottom', self.xaxisBox.currentText())
-        self.graphWidget.setLabel('left', self.yaxisBox.currentText())
+        self.graphWidget.setLabel('bottom', self.xaxisWidget.Combo.currentText())
+        self.graphWidget.setLabel('left', self.yaxisWidget.Combo.currentText())
         self.plot.setData(self.xdata, self.ydata)
