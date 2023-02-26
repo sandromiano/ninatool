@@ -80,17 +80,17 @@ class mainwindow(QtWidgets.QMainWindow):
                 
                 for i in range(self.structure.order):
                     axisBox.addItem(axisName + '.u' + str(i+2))
-                    axisBox.addItem(axisName + '.ladm' + str(i+2))
-                    axisBox.addItem(axisName + '.radm' + str(i+2))
+                    axisBox.addItem(axisName + '.left_branch.adm' + str(i+2))
+                    axisBox.addItem(axisName + '.right_branch.adm' + str(i+2))
             
             self.axesDict[axisName + '.flux'] = lambda : self.structure.flux
             
             for i in range(self.structure.order):
                 self.axesDict[axisName + '.u' + str(i + 2)] = \
                     partial(element_adm, self.structure, i)
-                self.axesDict[axisName + '.ladm' + str(i + 2)] = \
+                self.axesDict[axisName + '.left_branch.adm' + str(i + 2)] = \
                     partial(loop_left_adm, self.structure, i)
-                self.axesDict[axisName + '.radm' + str(i + 2)] = \
+                self.axesDict[axisName + '.right_branch.adm' + str(i + 2)] = \
                     partial(loop_right_adm, self.structure, i)
                 
         for element in self.structure.elements:

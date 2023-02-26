@@ -52,7 +52,7 @@ class axisWidget(QtWidgets.QWidget):
         super().__init__()
         
         self.Combo = QtWidgets.QComboBox()
-        self.Combo.setMaximumWidth(200)
+        self.Combo.setMaximumWidth(300)
         
         Label = QtWidgets.QLabel()
         Label.setText(label)
