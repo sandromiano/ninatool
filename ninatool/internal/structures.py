@@ -100,6 +100,10 @@ class branch(Nlind):
     @property
     def num_elements(self):
         return(len(self.elements))
+    
+    @property
+    def L0(self):
+        return(sum(element.L0 for element in self.elements))
 
     ### BRANCH-SPECIFIC SETTERS ###
     
@@ -139,7 +143,6 @@ class branch(Nlind):
     def parse(self):
         logging.debug('called parse method of branch ' + str(self.name))
         #zero bias linear inductance of the branch
-        self.L0 = sum(element.L0 for element in self.elements)
         #list of all the JJs in the branch
         self.__JJs = [elem for elem in self.elements if elem.kind == 'J']
         #if the branch does not have JJs, it is assumed to be linear.
@@ -253,7 +256,9 @@ class branch(Nlind):
         logging.debug('called calc_coeffs method of branch '
                       + str(self.name))
         
-        if self.__is_linear:
+        if self.is_linear:
+            self.free_element.L0 = self.L0
+            self.free_element.calc_coeffs()
             self.adm = self.free_element.adm
         elif not self.is_free:
             self.imp = sum([elem.imp for elem in self.elements])

@@ -12,7 +12,7 @@ class rfsquid(loop):
         
         self.J0 = J(i0, order = order, name = 'J0')
         self.L0 = L(L0, order = order, name = 'L0')
-        self.L1 = L(L0, order = order, name = 'L1')
+        self.L1 = L(L1, order = order, name = 'L1')
 
         left_branch = [self.J0, self.L0]
         right_branch = [self.L1]

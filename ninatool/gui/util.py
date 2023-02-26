@@ -1,5 +1,12 @@
 from PyQt5.QtCore import pyqtSignal, QObject
 
+
+def loop_left_adm(loop, index):
+    return(loop.left_adm[index])
+
+def loop_right_adm(loop, index):
+    return(loop.right_adm[index])
+
 def element_adm(element, index):
     return (element.adm[index])
 

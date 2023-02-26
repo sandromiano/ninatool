@@ -4,7 +4,7 @@ import sys
 from PyQt5 import QtWidgets
 import numpy as np
 
-loop0 = snail(order = 5)
+loop0 = rfsquid(order = 5)
 loop0.free_phi = np.linspace(-1,1,1001) * 2 * np.pi
 #%%
 app = QtWidgets.QApplication(sys.argv)

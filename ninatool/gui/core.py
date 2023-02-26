@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
 from functools import partial
-from .util import element_adm, element_i, element_phi
+from .util import element_adm, element_i, element_phi, loop_left_adm, loop_right_adm
 from .widgets import elementWidget, axisWidget, plotWidget
 
 class mainwindow(QtWidgets.QMainWindow):
@@ -63,11 +63,14 @@ class mainwindow(QtWidgets.QMainWindow):
                 for i in range(self.structure.order):
                     axisBox.addItem(axisName + '.u' + str(i + 2))
                 
-            self.axesDict[axisName + '.phi'] = partial(element_phi, self.structure)
-            self.axesDict[axisName + '.i'] = partial(element_i, self.structure)
+            self.axesDict[axisName + '.phi'] = \
+                partial(element_phi, self.structure)
+            self.axesDict[axisName + '.i'] = \
+                partial(element_i, self.structure)
             
             for i in range(self.structure.order):
-                self.axesDict[axisName + '.u' + str(i + 2)] = partial(element_adm, self.structure, i)
+                self.axesDict[axisName + '.u' + str(i + 2)] = \
+                    partial(element_adm, self.structure, i)
             
             
         if self.structure.kind == 'loop':
@@ -77,11 +80,18 @@ class mainwindow(QtWidgets.QMainWindow):
                 
                 for i in range(self.structure.order):
                     axisBox.addItem(axisName + '.u' + str(i+2))
+                    axisBox.addItem(axisName + '.ladm' + str(i+2))
+                    axisBox.addItem(axisName + '.radm' + str(i+2))
             
             self.axesDict[axisName + '.flux'] = lambda : self.structure.flux
             
             for i in range(self.structure.order):
-                self.axesDict[axisName + '.u' + str(i + 2)] = partial(element_adm, self.structure, i)
+                self.axesDict[axisName + '.u' + str(i + 2)] = \
+                    partial(element_adm, self.structure, i)
+                self.axesDict[axisName + '.ladm' + str(i + 2)] = \
+                    partial(loop_left_adm, self.structure, i)
+                self.axesDict[axisName + '.radm' + str(i + 2)] = \
+                    partial(loop_right_adm, self.structure, i)
                 
         for element in self.structure.elements:
             axisName = element.name
@@ -95,25 +105,36 @@ class mainwindow(QtWidgets.QMainWindow):
             self.axesDict[axisName + '.phi'] = partial(element_phi, element)
             self.axesDict[axisName + '.i'] = partial(element_i, element)
             for i in range(self.structure.order):
-                self.axesDict[axisName + '.u' + str(i + 2)] = partial(element_adm, element, i)
+                self.axesDict[axisName + '.u' + str(i + 2)] = \
+                    partial(element_adm, element, i)
         
     def create_CentralWidget(self):
         
         box = QtWidgets.QVBoxLayout()
         box.addLayout(self.elementsBox)
         box.addWidget(self.plotWidget)
+        box.addWidget(self.led)
         
         centralWidget = QtWidgets.QWidget()
         centralWidget.setLayout(box)
         self.setCentralWidget(centralWidget)
         
+    def create_multistable_indicator(self):
+        
+        self.led = QtWidgets.QCheckBox()
+        self.led.setText('multivalued')
+        
     def create_all(self):
 
         self.create_elementsBox()
+        self.create_multistable_indicator()
         self.create_CentralWidget()
         
     def update_plot(self):
         
-        self.plotWidget.graphWidget.setLabel('bottom', self.xaxisWidget.Combo.currentText())
-        self.plotWidget.graphWidget.setLabel('left', self.yaxisWidget.Combo.currentText())
+        self.led.setChecked(not self.structure.multivalued)
+        self.plotWidget.graphWidget.setLabel('bottom', 
+                                             self.xaxisWidget.Combo.currentText())
+        self.plotWidget.graphWidget.setLabel('left', 
+                                             self.yaxisWidget.Combo.currentText())
         self.plotWidget.plot.setData(self.xdata, self.ydata)
