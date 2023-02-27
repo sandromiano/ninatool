@@ -25,14 +25,11 @@ $E_\mathrm{U}$
 and capacitance units
 $C_\matrhm{U}$
 can be derived from the current units as:
-
-$L_\mathrm{U} = \dfrac{\Phi_0}{2\pi I_\mathrm{U}}$ 
-
+$L_\mathrm{U} = \dfrac{\Phi_0}{2\pi I_\mathrm{U}}$
 $E_\mathrm{U} = \dfrac{\Phi_0 I_\mathrm{U}}{2\pi}$
-
 $C_\mathrm{U} = \dfrac{\pi e^2}{\Phi_0 I_\mathrm{U}}$
 
-where $\Phi_0 \approx 2.067 \times 10^{-15}$ Wb is the magnetic flux quantum and $e \approx 1.6 \time 10^{-19}C$ is the electron charge.
+where $\Phi_0 \approx 2.067 \times 10^{-15}$ Wb is the magnetic flux quantum and $e \approx 1.6 \times 10^{-19}C$ is the electron charge.
 
 Phase units are in radians.
 
