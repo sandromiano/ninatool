@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
-from .util import updated_signal
+from .gui_utils import updated_signal
 
 class elementWidget(QtWidgets.QWidget):
     
@@ -30,11 +30,11 @@ class elementWidget(QtWidgets.QWidget):
         
         elementSpinBox.valueChanged.connect(self.update)
         
-        jBox = QtWidgets.QVBoxLayout()
-        jBox.addWidget(elementLabel)
-        jBox.addWidget(elementSpinBox)
+        Box = QtWidgets.QVBoxLayout()
+        Box.addWidget(elementLabel)
+        Box.addWidget(elementSpinBox)
         
-        self.setLayout(jBox)
+        self.setLayout(Box)
         
     def update(self, value):
         

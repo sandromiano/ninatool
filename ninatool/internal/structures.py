@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 from numpy import pi
-from .elements import Nlind, L
+from .elements import Nlind, L, J
 from .support_functions import check_order
 
 NUM_POINTS = 1001 # number of points for default phase array
@@ -16,7 +16,7 @@ class branch(Nlind):
     inductance-phase relation and potential energy expansion coefficients.
     '''
     def __init__(self, 
-                 elements = [L(1)],
+                 elements = [J(1)],
                  is_free = True, 
                  name = '', 
                  observe_elements = True,
@@ -219,7 +219,6 @@ class branch(Nlind):
         #its own quantities.
         if self.__manipulate_elements:
             self._Nlind__i = self.free_element.i
-    
             for elem in self.constrained_elements:
                 elem.i = self._Nlind__i
 
@@ -258,15 +257,12 @@ class branch(Nlind):
         
         if self.is_linear:
             self.free_element.L0 = self.L0
-            self.free_element.calc_coeffs()
             self.adm = self.free_element.adm
         elif not self.is_free:
             self.imp = sum([elem.imp for elem in self.elements])
         elif len(self.constrained_elements) == 0:
             self.adm = self.free_element.adm
-        else:
-            for element in self.elements:
-                element.calc_coeffs()
+        else:             
             #for the constrained elements, the expansion coefficients can
             #be computed with the impedance-like representation and then
             #inverted (the invert_repr map can still be singular if there is
@@ -433,3 +429,60 @@ class loop(Nlind):
         
         self.associated_branch.interpolate_results(phi_grid = phi_grid)
         self.update()
+        
+class Nlosc:
+    
+    def __init__(self, nlind, name = ''):
+        
+        self.__name = name
+        self.__kind = 'Nlosc'
+        self.__nlind = nlind
+        self.__EC = 1
+
+    @property
+    def name(self):
+        return(self.__name)
+    
+    @property
+    def kind(self):
+        return(self.__kind)
+    
+    @property
+    def nlind(self):
+        return(self.__nlind)
+    
+    @property
+    def multivalued(self):
+        return(self.nlind.multivalued)
+    
+    @property
+    def EC(self):
+        return(self.__EC)
+        
+    @property
+    def phiZPF(self):
+        return(1/np.sqrt(2) * (8 * self.EC / self.nlind.adm[0]) ** 0.25)
+    
+    @property
+    def nZPF(self):
+        return(1/np.sqrt(2) * (self.nlind.adm[0] / (8 * self.EC)) ** 0.25)
+    
+    @property
+    def omega(self):
+        #missing hbar at denominator
+        return(np.sqrt(8 * self.EC * self.nlind.adm[0]))
+    
+    @property
+    def gn(self):
+        #missing hbar at denominator
+        factorial_array = np.array([np.math.factorial(i + 3) 
+                                    for i in range(self.nlind.order - 1)])
+        
+        factorial_array = factorial_array.reshape(self.nlind.order -1, 1)
+        
+        return(self.phiZPF * self.nlind.adm[1:] / factorial_array)
+        
+    @EC.setter
+    def EC(self, value):
+        self.__EC = value
+        

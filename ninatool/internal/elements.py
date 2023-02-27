@@ -173,6 +173,7 @@ class Nlind(object) :
         self.calc_current()
         self.calc_potential()
         self.calc_inductance()
+        self.calc_coeffs()
 
     @i.setter
     def i(self, i):
@@ -180,6 +181,7 @@ class Nlind(object) :
         self.calc_phase()
         self.calc_potential()
         self.calc_inductance()
+        self.calc_coeffs()
 
     @ic.setter
     def ic(self, ic):
@@ -256,6 +258,7 @@ class L(Nlind):
     def ic(self, value):
         self._Nlind__ic = value
         self._Nlind__L0 = 1/value
+        self.calc_coeffs()
         #updates observer if any
         if self.observer is not None:
             self.observer.update()
@@ -264,6 +267,7 @@ class L(Nlind):
     def L0(self, value):
         self._Nlind__L0 = value
         self._Nlind__ic = 1/value
+        self.calc_coeffs()
         #updates observer if any
         if self.observer is not None:
             self.observer.update()
@@ -350,6 +354,7 @@ class J(Nlind):
     def ic(self, value):
         self._Nlind__ic = value
         self._Nlind__L0 = 1/value
+        self.calc_coeffs()
         #updates observer if any
         if self.observer is not None:
             self.observer.update()
@@ -358,6 +363,7 @@ class J(Nlind):
     def L0(self, value):
         self._Nlind__L0 = value
         self._Nlind__ic = 1/value
+        self.calc_coeffs()
         #updates observer if any
         if self.observer is not None:
             self.observer.update()
