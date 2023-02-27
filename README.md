@@ -28,7 +28,7 @@ $E_\mathrm{U}$
 
 and capacitance units
 
-$C_\matrhm{U}$
+$C_\mathrm{U}$
 
 can be derived from the current units as:
 
