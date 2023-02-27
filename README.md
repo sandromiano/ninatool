@@ -8,6 +8,8 @@ https://arxiv.org/abs/2302.03155.
 The main functionality of NINA is to compute the Taylor expansion coefficient of the 
 effective potential energy function of an arbitrary flux-biased superconducting loop. 
 The loop can host any combination of Josephson junctions (JJs) and linear inductances.
+NINA can also compute the Hamiltonian series expansion of an arbitrary Josephson 
+nonlinear oscillator.
 
 NINA includes a simple GUI to allow the user to quickly test the properties of a desired 
 superconducting structure (branches and single loops are currently supported, 
