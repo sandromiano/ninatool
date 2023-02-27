@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 
 spa = Nlosc(nlind = snail(order = 4), name = 'SPA')
 
-plt.plot(spa.nlind.flux, spa.omega)
-spa.EC = 2
-plt.plot(spa.nlind.flux, spa.omega)
+plt.plot(spa.nlind.flux, spa.phiZPF)
+spa.C = 1000
+plt.plot(spa.nlind.flux, spa.phiZPF)
 
 #%%
 from ninatool.gui.mainwindow import mainwindow

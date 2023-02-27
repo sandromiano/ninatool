@@ -437,7 +437,7 @@ class Nlosc:
         self.__name = name
         self.__kind = 'Nlosc'
         self.__nlind = nlind
-        self.__EC = 1
+        self.__C = 1
 
     @property
     def name(self):
@@ -456,8 +456,12 @@ class Nlosc:
         return(self.nlind.multivalued)
     
     @property
+    def C(self):
+        return(self.__C)
+    
+    @property
     def EC(self):
-        return(self.__EC)
+        return(1/self.__C)
         
     @property
     def phiZPF(self):
@@ -475,14 +479,18 @@ class Nlosc:
     @property
     def gn(self):
         #missing hbar at denominator
+        power_array = np.array([i + 3 for i in range(self.nlind.order -1)])
+        
+        power_array = power_array.reshape(self.nlind.order -1, 1)
+        
         factorial_array = np.array([np.math.factorial(i + 3) 
                                     for i in range(self.nlind.order - 1)])
         
         factorial_array = factorial_array.reshape(self.nlind.order -1, 1)
         
-        return(self.phiZPF * self.nlind.adm[1:] / factorial_array)
+        return(self.phiZPF ** power_array * self.nlind.adm[1:] / factorial_array)
         
-    @EC.setter
-    def EC(self, value):
-        self.__EC = value
+    @C.setter
+    def C(self, value):
+        self.__C = value
         
