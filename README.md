@@ -20,19 +20,28 @@ NINA uses dimensionless units for electrical variables.
 Typically, the user would first fix the desired current units $I_\mathrm{U}$, then 
 the inductance units 
 $L_\mathrm{U}$ 
-and energy units
-$E_\mathrm{U}$ 
+energy units
+$E_\mathrm{U}$
+and capacitance units
+$C_\matrhm{U}$
 can be derived from the current units as:
 
 $L_\mathrm{U} = \dfrac{\Phi_0}{2\pi I_\mathrm{U}}$ 
 
-$E_\mathrm{U} = \dfrac{\Phi_0 I_\mathrm{U}}{2\pi}$ 
+$E_\mathrm{U} = \dfrac{\Phi_0 I_\mathrm{U}}{2\pi}$
 
-where $\Phi_0 \approx 2.067 \times 10^{-15}$ Wb is the magnetic flux quantum.
+$C_\mathrm{U} = \dfrac{\pi e^2}{\Phi_0 I_\mathrm{U}}$
+
+where $\Phi_0 \approx 2.067 \times 10^{-15}$ Wb is the magnetic flux quantum and $e \approx 1.6 \time 10^{-19}C$ is the electron charge.
 
 Phase units are in radians.
 
 Flux is in units of $\dfrac{\Phi_0}{2\pi}$, so can be considered as a phase.
+
+With these units, the following relations hold:
+Critical current $I_C$ of a JJ corresponds to its Josephson energy $E_J$.
+Critial current of a JJ $I_C$ is reciprocal of its Josephson inductance $L_J$.
+Capacitance $C$ and charging energy $E_C$ are reciprocal.
 
 # installation instructions
 
@@ -44,7 +53,6 @@ NINA requires the following packages:
 - pyqtgraph (for GUI)
 - jupyter (for examples)
 - matplotlib (for examples)
-
 
 If you install NINA in a conda environment, make sure to have the required packages
 installed via 'conda install [package_name]'.
