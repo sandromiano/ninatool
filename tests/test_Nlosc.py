@@ -1,12 +1,8 @@
-from ninatool.internal.structures import Nlosc
+from ninatool.internal.structures import Nlosc, branch
 from ninatool.circuits.base_circuits import snail
 import matplotlib.pyplot as plt
 
-spa = Nlosc(nlind = snail(order = 4), name = 'SPA')
-
-plt.plot(spa.nlind.flux, spa.phiZPF)
-spa.C = 1000
-plt.plot(spa.nlind.flux, spa.phiZPF)
+spa = Nlosc(nlind = snail(), name = 'SPA')
 
 #%%
 from ninatool.gui.mainwindow import mainwindow

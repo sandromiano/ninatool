@@ -252,6 +252,9 @@ class L(Nlind):
         
         self.calc_coeffs()
     
+    @property
+    def EL(self):
+        return(1/self.L0)
     ### CLASS-SPECIFIC SETTERS, OVERRIDE Nlind ONES    
     
     @Nlind.ic.setter
@@ -347,6 +350,10 @@ class J(Nlind):
         Returns bool flag marking if the J instance is a "free JJ".
         '''
         return(self.__is_free)
+    
+    @property
+    def EJ(self):
+        return(self.ic)
 
     ### CLASS-SPECIFIC SETTERS, 'ic' and 'L0' OVERRIDE Nlind ONES
 
@@ -419,3 +426,33 @@ class J(Nlind):
         self.adm = [eval(str(adm_list[i]), keys) for i in range(self.order)]
 
     ### END OF 'J' CLASS ###
+    
+class C(object):
+    
+    def __init__(self, name = ''):
+        
+        self.__kind = 'C'
+        self.__name = name
+        self.__C = 1
+    
+    @property
+    def kind(self):
+        return(self.__kind)
+    
+    @property
+    def name(self):
+        return(self.__name)
+    
+    @property
+    def C(self):
+        return(self.__C)
+    
+    @property
+    def EC(self):
+        return(1/self.C)
+    
+    @C.setter
+    def C(self, value):
+        self.__C = value
+        
+        

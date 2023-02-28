@@ -1,6 +1,16 @@
+from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
-from .gui_utils import updated_signal
+import numpy as np
+pi = np.pi
+
+class updated_signal(QObject):
+    
+    updated = pyqtSignal()
+    
+    def __init__(self):
+        super().__init__()
+        pass
 
 class elementWidget(QtWidgets.QWidget):
     
@@ -25,6 +35,9 @@ class elementWidget(QtWidgets.QWidget):
         elif self.element.kind == 'L':
             parString = '.L0'
             elementSpinBox.setValue(self.element.L0)
+        if self.element.kind =='C':
+            parString = '.C'
+            elementSpinBox.setValue(self.element.C)
             
         elementLabel = QtWidgets.QLabel(self.element.name + parString)
         
@@ -34,6 +47,10 @@ class elementWidget(QtWidgets.QWidget):
         Box.addWidget(elementLabel)
         Box.addWidget(elementSpinBox)
         
+        if self.element.kind =='J':
+            self.isFreeLabel = QtWidgets.QLabel('free')
+            Box.addWidget(self.isFreeLabel)
+        
         self.setLayout(Box)
         
     def update(self, value):
@@ -42,8 +59,45 @@ class elementWidget(QtWidgets.QWidget):
             self.element.ic = value
         elif self.element.kind == 'L':
             self.element.L0 = value
-
+        elif self.element.kind =='C':
+            self.element.C = value
+            
         self.signal.updated.emit()
+            
+    def updateFreeIndicator(self):
+        if self.element.kind =='J':
+            if self.element.is_free:
+                self.isFreeLabel.setStyleSheet('color : green; \
+                                               font-weight: bold; \
+                                               font-size: 14px')
+            else:
+                self.isFreeLabel.setStyleSheet('color : lightgray; \
+                                               font-weight: bold; \
+                                               font-size: 14px')
+
+
+        
+class freePhiWidget(QtWidgets.QWidget):
+
+    def __init__(self):
+        
+        super().__init__()
+        
+        self.freePhase = None
+        self.LineEdit = QtWidgets.QLineEdit()
+        Label = QtWidgets.QLabel('free_element.phi')
+        self.signal = updated_signal()
+        self.LineEdit.editingFinished.connect(self.update)
+
+        Box = QtWidgets.QVBoxLayout()
+        Box.addWidget(Label)
+        Box.addWidget(self.LineEdit)
+        self.setLayout(Box)
+        
+    def update(self):
+        self.freePhase = eval(self.LineEdit.text())
+        self.signal.updated.emit()
+        
         
 class axisWidget(QtWidgets.QWidget):
     

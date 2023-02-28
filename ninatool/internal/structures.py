@@ -1,8 +1,10 @@
 import logging
 import numpy as np
 from numpy import pi
-from .elements import Nlind, L, J
+from .elements import Nlind, L, J, C
 from .support_functions import check_order
+
+logging.basicConfig(level = None)
 
 NUM_POINTS = 1001 # number of points for default phase array
 NUM_PERIODS = 2 # number of periods for default phase array
@@ -435,9 +437,9 @@ class Nlosc:
     def __init__(self, nlind, name = ''):
         
         self.__name = name
-        self.__kind = 'Nlosc'
+        self.__kind = 'nlosc'
         self.__nlind = nlind
-        self.__C = 1
+        self.__C = C(name = name + '.C')
 
     @property
     def name(self):
@@ -456,12 +458,16 @@ class Nlosc:
         return(self.nlind.multivalued)
     
     @property
-    def C(self):
+    def cElem(self):
         return(self.__C)
     
     @property
+    def C(self):
+        return(self.__C.C)
+    
+    @property
     def EC(self):
-        return(1/self.__C)
+        return(self.__C.EC)
         
     @property
     def phiZPF(self):
@@ -492,5 +498,5 @@ class Nlosc:
         
     @C.setter
     def C(self, value):
-        self.__C = value
+        self.__C.C = value
         
