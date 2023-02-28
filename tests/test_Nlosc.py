@@ -3,7 +3,6 @@ from ninatool.circuits.base_circuits import snail
 import matplotlib.pyplot as plt
 
 spa = Nlosc(nlind = snail(), name = 'SPA')
-
 #%%
 from ninatool.gui.mainwindow import mainwindow
 import sys

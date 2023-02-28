@@ -439,7 +439,7 @@ class Nlosc:
         self.__name = name
         self.__kind = 'nlosc'
         self.__nlind = nlind
-        self.__C = C(name = name + '.C')
+        self.__C = C(name = name + '.C0')
 
     @property
     def name(self):
