@@ -31,7 +31,7 @@ $E_\mathrm{U} = \dfrac{\Phi_0 I_\mathrm{U}}{2\pi}$
 
 $C_\mathrm{U} = \dfrac{\pi e^2}{\Phi_0 I_\mathrm{U}}$
 
-where $\Phi_0 \approx 2.067 \times 10^{-15}$ Wb is the magnetic flux quantum and $e \approx 1.6 \times 10^{-19}C$ is the electron charge.
+where $\Phi_0 \approx 2.067 \times 10^{-15}$ Wb is the magnetic flux quantum and $e \approx 1.6 \times 10^{-19}\mathrm{C}$ is the electron charge.
 
 Phase units are in radians.
 
@@ -41,9 +41,9 @@ With these units, the following relations hold:
 
 Critical current $I_C$ of a JJ corresponds to its Josephson energy $E_J$.
 
-Critial current of a JJ $I_C$ is reciprocal of its Josephson inductance $L_J$.
+Critial current of a JJ $I_C$ and its Josephson inductance $L_J$ are reciprocal.
 
-Capacitance $C$ and charging energy $E_C$ are reciprocal.
+Capacitance $C$ and its charging energy $E_C$ are reciprocal.
 
 # installation instructions
 
