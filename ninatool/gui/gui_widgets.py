@@ -50,6 +50,10 @@ class elementWidget(QtWidgets.QWidget):
         if self.element.kind =='J':
             self.isFreeLabel = QtWidgets.QLabel('free')
             Box.addWidget(self.isFreeLabel)
+        else: #this is a nasty trick to align non JJ boxes... Fix it!!!
+            self.isFreeLabel = QtWidgets.QLabel('')
+            self.isFreeLabel.setStyleSheet('font-size: 14px')
+            Box.addWidget(self.isFreeLabel)
         
         self.setLayout(Box)
         
