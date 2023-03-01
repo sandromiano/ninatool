@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 from functools import partial
 from .gui_utils import load_loop, load_branch, load_nlosc
-from .gui_widgets import plotWidget, freePhiWidget
+from .gui_widgets import plotWidget, freePhiWidget, unitsWidget
 
 class mainwindow(QtWidgets.QMainWindow):
     
@@ -9,6 +9,7 @@ class mainwindow(QtWidgets.QMainWindow):
         
         super().__init__()
         
+        self.unitsWidget = unitsWidget()
         self.structure = structure
         self.elementsBox = QtWidgets.QHBoxLayout()
         self.freePhiWidget = freePhiWidget()
@@ -38,6 +39,7 @@ class mainwindow(QtWidgets.QMainWindow):
         
         self.xaxisWidget.Combo.currentIndexChanged.connect(self.update_axes)
         self.yaxisWidget.Combo.currentIndexChanged.connect(self.update_axes)
+        self.unitsWidget.currentUnitsCombo.currentTextChanged.connect(self.update_axes)
     
     def update_axes(self):
         
@@ -57,33 +59,33 @@ class mainwindow(QtWidgets.QMainWindow):
         if self.structure.kind == 'nlosc':
             load_nlosc(self, self.structure)
 
-
     def create_CentralWidget(self):
         
         box = QtWidgets.QVBoxLayout()
+        box.addWidget(self.unitsWidget)
         box.addLayout(self.elementsBox)
         box.addWidget(self.freePhiWidget)
         box.addWidget(self.plotWidget)
-        box.addWidget(self.led)
-        
+        box.addWidget(self.multivaluedLed)
+
         centralWidget = QtWidgets.QWidget()
         centralWidget.setLayout(box)
         self.setCentralWidget(centralWidget)
         
-    def create_multistable_indicator(self):
+    def create_multivalued_indicator(self):
         
-        self.led = QtWidgets.QCheckBox()
-        self.led.setText('multivalued')
+        self.multivaluedLed = QtWidgets.QCheckBox()
+        self.multivaluedLed.setText('multivalued')
         
     def create_all(self):
 
         self.load_structure()
-        self.create_multistable_indicator()
+        self.create_multivalued_indicator()
         self.create_CentralWidget()
         
     def update_plot(self):
         
-        self.led.setChecked(not self.structure.multivalued)
+        self.multivaluedLed.setChecked(not self.structure.multivalued)
         self.plotWidget.graphWidget.setLabel('bottom', 
                                              self.xaxisWidget.Combo.currentText())
         self.plotWidget.graphWidget.setLabel('left', 

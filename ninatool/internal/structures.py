@@ -4,8 +4,6 @@ from numpy import pi
 from .elements import Nlind, L, J, C
 from .support_functions import check_order
 
-logging.basicConfig(level = None)
-
 NUM_POINTS = 1001 # number of points for default phase array
 NUM_PERIODS = 2 # number of periods for default phase array
 
@@ -278,7 +276,6 @@ class branch(Nlind):
                                                constrained_adm)
     
     def calc_all(self):
-        
         logging.debug('called calc_all method of branch '
                       + str(self.name))
         
@@ -396,21 +393,19 @@ class loop(Nlind):
 
     @free_phi.setter
     def free_phi(self, value):
+        logging.debug('called free_phi setter of loop ' + str(self.name))
         
-        logging.debug('called free_phi setter of loop ' + str(self.name))    
         self.associated_branch.free_phi = value
 
     ### LOOP-SPECIFIC METHODS ###
 
     def subscribe(self):
-        
         logging.debug('called subscribe method of loop ' + str(self.name))
         
         self.add_observed(self.associated_branch)
         self.associated_branch.observer = self
             
     def calc_coeffs(self):
-        
         logging.debug('called calc_coeffs method of loop ' + str(self.name))
         
         self.left_branch.calc_coeffs()
@@ -419,7 +414,6 @@ class loop(Nlind):
         self.adm = self.left_adm + self.right_adm
         
     def update(self):
-        
         logging.debug('called update method of loop ' + str(self.name))
         
         self.left_branch.is_free = self.free_element in self.left_elements
