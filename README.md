@@ -78,4 +78,4 @@ https://arxiv.org/abs/2302.03155.
 
 # contacts
 
-You can contact me regarding NINA at superconducting.nina@gmail.com.
+For inquiries, suggestions and more, you can contact NINA at superconducting.nina@gmail.com.
