@@ -62,11 +62,11 @@ class mainwindow(QtWidgets.QMainWindow):
     def create_CentralWidget(self):
         
         box = QtWidgets.QVBoxLayout()
-        box.addWidget(self.unitsWidget)
         box.addLayout(self.elementsBox)
         box.addWidget(self.freePhiWidget)
         box.addWidget(self.plotWidget)
         box.addWidget(self.multivaluedLed)
+        box.addWidget(self.unitsWidget)
 
         centralWidget = QtWidgets.QWidget()
         centralWidget.setLayout(box)
