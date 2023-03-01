@@ -65,7 +65,17 @@ It is important to not install NINA as a .egg
 (i.e. DON'T execute "python setup.py install"),
 as it will fail to load some necessary .txt files.
 
+# learning NINA
+
+Before using NINA, its useful to have a grasp of the paper linked at the beginning of the readme. This will clarify what the terms 'free', 'associated branch' etc. mean in NINA.
+Code is documented (except for the GUI, for now) and some tutorials will be published soon in the repository.
+You can start exploring NINA's functionalities running the .py files in 'test' folder and the .ipynb files in 'examples'.
+
 # citing NINA
 
 If you use NINA for your research, be a good citizen and cite this article 
 https://arxiv.org/abs/2302.03155.
+
+# contacts
+
+You can contact me regarding NINA at superconducting.nina@gmail.com.
