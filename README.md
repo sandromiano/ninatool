@@ -39,11 +39,11 @@ Flux is in units of $\dfrac{\Phi_0}{2\pi}$, so can be considered as a phase.
 
 With these units, the following relations hold:
 
-Critical current $I_C$ of a JJ corresponds to its Josephson energy $E_J$.
+ - Critical current $I_C$ of a JJ corresponds to its Josephson energy $E_J$.
 
-Critial current of a JJ $I_C$ and its Josephson inductance $L_J$ are reciprocal.
+ - Critial current $I_C$ of a JJ and its Josephson inductance $L_J$ are reciprocal.
 
-Capacitance $C$ and its charging energy $E_C$ are reciprocal.
+ - Capacitance $C$ and its charging energy $E_C$ are reciprocal.
 
 # installation instructions
 
