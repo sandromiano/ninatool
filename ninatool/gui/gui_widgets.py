@@ -1,11 +1,14 @@
 from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
-from numpy import linspace, array
+from numpy import linspace, array, inf
 from scipy.constants import pi, h, elementary_charge
+from .scientific_spinbox import ScienDSpinBox as ScientificDoubleSpinBox
+from .led_indicator import LedIndicator
 
 Phi0 = h / (2 * elementary_charge)
 fmtStr = '{:.3g}'
+
 class updated_signal(QObject):
     
     updated = pyqtSignal()
@@ -28,7 +31,7 @@ class elementWidget(QtWidgets.QWidget):
         elementSpinBox = QtWidgets.QDoubleSpinBox(self)
         elementSpinBox.setMaximumWidth(100)
         elementSpinBox.setMinimum(0.01)
-        elementSpinBox.setMaximum(1e3)
+        elementSpinBox.setMaximum(inf)
         elementSpinBox.setSingleStep(0.01)
         
         if self.element.kind == 'J':    
@@ -102,6 +105,22 @@ class freePhiWidget(QtWidgets.QWidget):
         self.freePhase = eval(self.LineEdit.text())
         self.signal.updated.emit()
         
+class multivaluedWidget(QtWidgets.QWidget):
+
+    def __init__(self):
+        
+        super().__init__()
+
+        self.Led = LedIndicator()
+        label = QtWidgets.QLabel('multivalued')
+
+        box = QtWidgets.QHBoxLayout()
+        box.addWidget(self.Led)
+        box.addWidget(label)
+        box.addStretch()
+        box.setSpacing(10)
+        
+        self.setLayout(box)
         
 class axisWidget(QtWidgets.QWidget):
     
@@ -133,8 +152,7 @@ class plotWidget(QtWidgets.QWidget):
         
         self.graphWidget = pg.PlotWidget()
         self.graphWidget.setBackground('k')
-        self.graphWidget.showGrid(x = True, y = True)
-        
+
         pen = pg.mkPen(color=(0, 255, 150), width= 2)
         self.plot = self.graphWidget.plot(pen = pen)
         
@@ -148,7 +166,14 @@ class plotWidget(QtWidgets.QWidget):
         plotLayout = QtWidgets.QVBoxLayout()
         plotLayout.addLayout(self.axesBox)
         plotLayout.addWidget(self.graphWidget)
+        
+        self.XAxisItem = pg.AxisItem('bottom')
+        self.XAxisItem.setGrid(255)
+        self.YAxisItem = pg.AxisItem('left')
+        self.YAxisItem.setGrid(255)
 
+        self.graphWidget.setAxisItems(
+            axisItems = {'bottom' : self.XAxisItem, 'left' : self.YAxisItem})
         
         self.setLayout(plotLayout)
 
@@ -159,8 +184,8 @@ class unitsWidget(QtWidgets.QWidget):
         super().__init__()
         
         self.unitsHandler = unitsConverter()
-        self.availableCurrentUnits = self.unitsHandler.current_units_dict.keys()
         self.createLayout()
+        self.currentUnitsSpinBox.setValue(1e-8)
         
     @property
     def current_units(self):
@@ -191,13 +216,14 @@ class unitsWidget(QtWidgets.QWidget):
     
     def createCurrentUnitsBox(self):
         currentUnitsLabel = QtWidgets.QLabel('Current')
-        self.currentUnitsCombo = QtWidgets.QComboBox()
-        self.currentUnitsCombo.setMaximumWidth(100)
-        self.currentUnitsCombo.addItems(self.availableCurrentUnits)
-        self.currentUnitsCombo.currentTextChanged.connect(self.updateCurrentUnits)
+        self.currentUnitsSpinBox = ScientificDoubleSpinBox()
+        self.currentUnitsSpinBox.setMaximumWidth(80)
+        self.currentUnitsSpinBox.setSuffix('A')
+        self.currentUnitsSpinBox.setDecimals(1)
+        self.currentUnitsSpinBox.valueChanged.connect(self.updateCurrentUnits)
         currentUnitsBox = QtWidgets.QVBoxLayout()
         currentUnitsBox.addWidget(currentUnitsLabel)
-        currentUnitsBox.addWidget(self.currentUnitsCombo)
+        currentUnitsBox.addWidget(self.currentUnitsSpinBox)
         return(currentUnitsBox)
     
     def createInductanceUnitsBox(self):
@@ -271,13 +297,7 @@ class unitsConverter(object):
     
     def __init__(self):
         
-        self.__current_units_dict = {'uA' : 1e-6,
-                                     'nA' : 1e-9}
         self.__current_units = 1e-6    
-    
-    @property
-    def current_units_dict(self):
-        return(self.__current_units_dict)
     
     @property
     def current_units(self):
@@ -299,7 +319,7 @@ class unitsConverter(object):
     def frequency_units(self):
         return(self.energy_units / h)
         
-    def set_current_units(self, units = 'uA'):
-        self.__current_units = self.__current_units_dict[units]
+    def set_current_units(self, units):
+        self.__current_units = units
 
     

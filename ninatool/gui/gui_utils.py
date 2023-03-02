@@ -65,12 +65,16 @@ def load_branch(gui, branch):
     
     gui.axesDict[axisName + '.phi'] = \
         partial(element_phi, branch, units)
+    gui.axesUnitsDict[axisName + '.phi'] = 'rad'
+    
     gui.axesDict[axisName + '.i'] = \
         partial(element_i, branch, units)
+    gui.axesUnitsDict[axisName + '.i'] = 'A'
     
     for i in range(branch.order):
         gui.axesDict[axisName + '.u' + str(i + 2)] = \
             partial(element_adm, branch, i, units)
+        gui.axesUnitsDict[axisName + '.u' + str(i + 2)] = 'Hz'
     
     #loaded here to first list branch quantities in axes combo
     load_elements(gui, branch)
@@ -86,11 +90,12 @@ def load_loop(gui, loop):
             axisBox.addItem(axisName + '.u' + str(i + 2))
     
     gui.axesDict[axisName + '.flux'] = partial(element_flux, loop)
+    gui.axesUnitsDict[axisName + '.flux'] = 'rad'
     
-
     for i in range(loop.order):
         gui.axesDict[axisName + '.u' + str(i + 2)] = \
             partial(element_adm, loop, i, units)
+        gui.axesUnitsDict[axisName + '.u' + str(i + 2)] = 'Hz'
     
     #loaded here to first list the loop quantities in axes combo
     load_branch(gui, loop.associated_branch)
@@ -110,11 +115,18 @@ def load_nlosc(gui, nlosc):
               axisBox.addItem(axisName + '.g' + str(i + 3))
     
     gui.axesDict[axisName + '.phiZPF'] = partial(nlosc_phiZPF, nlosc)
+    gui.axesUnitsDict[axisName + '.phiZPF'] = 'rad'
+    
     gui.axesDict[axisName + '.nZPF'] = partial(nlosc_nZPF, nlosc)
+    gui.axesUnitsDict[axisName + '.nZPF'] = ''
+    
     gui.axesDict[axisName + '.w'] = partial(nlosc_omega, nlosc, units)
+    gui.axesUnitsDict[axisName + '.w'] = 'Hz'
+    
     for i in range(nlosc.nlind.order - 1):   
         gui.axesDict[axisName + '.g' + str(i + 3)] = \
             partial(nlosc_gn, nlosc, i, units)
+        gui.axesUnitsDict[axisName + '.g' + str(i + 3)] = 'Hz'
     
     #loaded here to first list the nlosc quantities in axes combo
     nlind = nlosc.nlind
@@ -136,10 +148,14 @@ def load_elements(gui, structure):
                     axisBox.addItem(axisName + '.u' + str(i + 2), units)
 
         gui.axesDict[axisName + '.phi'] = partial(element_phi, element, units)
+        gui.axesUnitsDict[axisName + '.phi'] = 'rad'
+        
         gui.axesDict[axisName + '.i'] = partial(element_i, element, units)
+        gui.axesUnitsDict[axisName + '.i'] = 'A' 
         #adm of a linear inductance is constant, no reason to plot!
         if element.kind != 'L':
             for i in range(structure.order):
                 gui.axesDict[axisName + '.u' + str(i + 2)] = \
                     partial(element_adm, element, i, units)
-     
+                gui.axesUnitsDict[axisName + '.u' + str(i + 2)] = 'Hz'
+    

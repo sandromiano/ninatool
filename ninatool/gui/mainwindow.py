@@ -1,7 +1,6 @@
 from PyQt5 import QtWidgets
-from functools import partial
 from .gui_utils import load_loop, load_branch, load_nlosc
-from .gui_widgets import plotWidget, freePhiWidget, unitsWidget
+from .gui_widgets import plotWidget, freePhiWidget, unitsWidget, multivaluedWidget
 
 class mainwindow(QtWidgets.QMainWindow):
     
@@ -14,11 +13,20 @@ class mainwindow(QtWidgets.QMainWindow):
         self.elementsBox = QtWidgets.QHBoxLayout()
         self.freePhiWidget = freePhiWidget()
         self.plotWidget = plotWidget()
+        self.multivaluedWidget = multivaluedWidget()
         self.axesDict = {}
+        self.axesUnitsDict = {}
         self.create_all()
         self.connect_axes()
         self.update_axes()
 
+    @property
+    def XAxisSelection(self):
+        return(self.xaxisWidget.Combo.currentText())
+    
+    @property
+    def YAxisSelection(self):
+        return(self.yaxisWidget.Combo.currentText())
     @property
     def elements(self):
         
@@ -39,12 +47,12 @@ class mainwindow(QtWidgets.QMainWindow):
         
         self.xaxisWidget.Combo.currentIndexChanged.connect(self.update_axes)
         self.yaxisWidget.Combo.currentIndexChanged.connect(self.update_axes)
-        self.unitsWidget.currentUnitsCombo.currentTextChanged.connect(self.update_axes)
+        self.unitsWidget.currentUnitsSpinBox.valueChanged.connect(self.update_axes)
     
     def update_axes(self):
         
-        self.xdata = self.axesDict[self.xaxisWidget.Combo.currentText()]()
-        self.ydata = self.axesDict[self.yaxisWidget.Combo.currentText()]()
+        self.xdata = self.axesDict[self.XAxisSelection]()
+        self.ydata = self.axesDict[self.YAxisSelection]()
         self.update_plot()
         self.updateFreeIndicators()
     
@@ -65,31 +73,30 @@ class mainwindow(QtWidgets.QMainWindow):
         box.addLayout(self.elementsBox)
         box.addWidget(self.freePhiWidget)
         box.addWidget(self.plotWidget)
-        box.addWidget(self.multivaluedLed)
+        box.addWidget(self.multivaluedWidget)
         box.addWidget(self.unitsWidget)
 
         centralWidget = QtWidgets.QWidget()
         centralWidget.setLayout(box)
         self.setCentralWidget(centralWidget)
         
-    def create_multivalued_indicator(self):
-        
-        self.multivaluedLed = QtWidgets.QCheckBox()
-        self.multivaluedLed.setText('multivalued')
-        
     def create_all(self):
 
         self.load_structure()
-        self.create_multivalued_indicator()
         self.create_CentralWidget()
         
     def update_plot(self):
         
-        self.multivaluedLed.setChecked(not self.structure.multivalued)
-        self.plotWidget.graphWidget.setLabel('bottom', 
-                                             self.xaxisWidget.Combo.currentText())
-        self.plotWidget.graphWidget.setLabel('left', 
-                                             self.yaxisWidget.Combo.currentText())
+        self.multivaluedWidget.Led.setChecked(not self.structure.multivalued)
+        
+        self.plotWidget.XAxisItem.setLabel(
+            text = self.XAxisSelection, 
+            units = self.axesUnitsDict[self.XAxisSelection])
+        
+        self.plotWidget.YAxisItem.setLabel(
+            text = self.YAxisSelection, 
+            units = self.axesUnitsDict[self.YAxisSelection])
+
         self.plotWidget.plot.setData(self.xdata, self.ydata)
         
     def updateFreeIndicators(self):
