@@ -13,6 +13,15 @@ L1 = L(1, order = order, name = 'L1')
 ### DEFINES BRANCH B0 ###
 B0 = branch(elements = [J0, J1, L0, L1], name = 'B0')
 ### SETS PHASE OF FREE ELEMENT IN B0
-B0.free_phi = np.linspace(-1,1,101) * 2 * np.pi
-
-plt.plot(B0.phi, B0.adm[0])
+#%%
+from ninatool.gui.mainwindow import mainwindow
+import sys
+from PyQt5 import QtWidgets
+import numpy as np
+#%%
+app = QtWidgets.QApplication(sys.argv)
+window = mainwindow(B0)
+window.resize(600,600)
+window.show()
+app.exec()
+del app

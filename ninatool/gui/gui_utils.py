@@ -1,6 +1,10 @@
 from functools import partial
 from .gui_widgets import elementWidget, NloopsWidget
 
+def findComboBoxIndex(ComboBox, text):
+    indx = ComboBox.findText(text)
+    return(indx)
+
 def loop_left_adm(loop, index, units):
     return(loop.left_adm[index] * units.frequency_units)
 
@@ -70,7 +74,7 @@ def load_branch(gui, branch):
             axisBox.addItem(axisName + '.u' + str(i + 2))
     
     gui.axesDict[axisName + '.phi'] = \
-        partial(element_phi, branch, units)
+        partial(element_phi, branch)
     gui.axesUnitsDict[axisName + '.phi'] = 'rad'
     
     gui.axesDict[axisName + '.i'] = \
@@ -157,7 +161,7 @@ def load_elements(gui, structure):
                 for i in range(structure.order):
                     axisBox.addItem(axisName + '.u' + str(i + 2), units)
 
-        gui.axesDict[axisName + '.phi'] = partial(element_phi, element, units)
+        gui.axesDict[axisName + '.phi'] = partial(element_phi, element)
         gui.axesUnitsDict[axisName + '.phi'] = 'rad'
         
         gui.axesDict[axisName + '.i'] = partial(element_i, element, units)

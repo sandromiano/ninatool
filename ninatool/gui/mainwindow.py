@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets
-from .gui_utils import load_loop, load_branch, load_nlosc
+from .gui_utils import load_loop, load_branch, load_nlosc, findComboBoxIndex
 from .gui_widgets import plotWidget, freePhiWidget, unitsWidget, multivaluedWidget
 
 class mainwindow(QtWidgets.QMainWindow):
@@ -17,6 +17,7 @@ class mainwindow(QtWidgets.QMainWindow):
         self.axesDict = {}
         self.axesUnitsDict = {}
         self.create_all()
+        self.set_defaults()
         self.connect_axes()
         self.update_axes()
 
@@ -84,7 +85,34 @@ class mainwindow(QtWidgets.QMainWindow):
 
         self.load_structure()
         self.create_CentralWidget()
+
+    def set_defaults(self):
         
+        #sets default free-phase
+        
+        if self.structure.kind == 'branch':
+            defaultX = self.structure.name + '.phi'
+            defaultY = self.structure.name + '.i'
+        elif self.structure.kind == 'loop':
+            defaultX = self.structure.name + '.flux'
+            defaultY = self.structure.name + '.u2'
+        elif self.structure.kind == 'nlosc':
+            if self.structure.nlind.kind == 'branch':
+                defaultX = self.structure.nlind.name + '.phi'
+                defaultY = self.structure.name + '.w'
+            elif self.structure.nlind.kind == 'loop':
+                defaultX = self.structure.nlind.name + '.flux'
+                defaultY = self.structure.name + '.w'
+        
+        Xindex = findComboBoxIndex(self.xaxisWidget.Combo, defaultX)
+        Yindex = findComboBoxIndex(self.yaxisWidget.Combo, defaultY)
+
+        self.xaxisWidget.Combo.setCurrentIndex(Xindex)
+        self.yaxisWidget.Combo.setCurrentIndex(Yindex)
+        
+        self.freePhiWidget.LineEdit.insert('linspace(-.5,.5,201) * 2 * pi')
+        self.freePhiWidget.update()
+
     def update_plot(self):
         
         self.multivaluedWidget.Led.setChecked(not self.structure.multivalued)
