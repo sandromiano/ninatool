@@ -7,7 +7,7 @@ from .scientific_spinbox import ScienDSpinBox as ScientificDoubleSpinBox
 from .led_indicator import LedIndicator
 
 Phi0 = h / (2 * elementary_charge)
-fmtStr = '{:.3g}'
+format_string = '{:.3g}'
 
 class updated_signal(QObject):
     
@@ -282,17 +282,55 @@ class unitsWidget(QtWidgets.QWidget):
         self.setLayout(unitsBox)
     
     def updateInductanceUnits(self):
-        self.inductanceUnitsDisplay.setText(fmtStr.format(self.inductance_units) + ' H')
+        self.inductanceUnitsDisplay.setText(
+            format_string.format(self.inductance_units) + ' H')
         
     def updateCapacitanceUnits(self):
-        self.capacitanceUnitsDisplay.setText(fmtStr.format(self.capacitance_units) + ' F')
+        self.capacitanceUnitsDisplay.setText(
+            format_string.format(self.capacitance_units) + ' F')
         
     def updateEnergyUnits(self):
-        self.energyUnitsDisplay.setText(fmtStr.format(self.energy_units) + ' J')
+        self.energyUnitsDisplay.setText(
+            format_string.format(self.energy_units) + ' J')
         
     def updateFrequencyUnits(self):
-        self.frequencyUnitsDisplay.setText(fmtStr.format(self.frequency_units) + ' Hz')
+        self.frequencyUnitsDisplay.setText(format_string.format(self.frequency_units) + ' Hz')
 
+class NloopsWidget(QtWidgets.QWidget):
+    
+    def __init__(self, loop):
+        
+        super().__init__()
+        
+        self.loop = loop
+        self.signal = updated_signal()
+        
+        label = QtWidgets.QLabel(loop.name + '.Nloops')
+        
+        self.SpinBox = QtWidgets.QSpinBox()
+        self.SpinBox.setMinimum(1)
+        self.SpinBox.setMaximum(int(1e3))
+        self.SpinBox.setValue(1)
+        self.SpinBox.valueChanged.connect(self.update)
+        
+        #this is a nasty trick to align non JJ boxes... Fix it!!!
+        self.isFreeLabel = QtWidgets.QLabel('')
+        self.isFreeLabel.setStyleSheet('font-size: 12px')
+
+        box = QtWidgets.QVBoxLayout()
+        box.addWidget(label)
+        box.addWidget(self.SpinBox)
+        box.addWidget(self.isFreeLabel)
+        
+        self.setLayout(box)
+        
+    def update(self, value):
+        self.loop.Nloops = value
+        self.signal.updated.emit()
+        
+    def updateFreeIndicator(self):
+        pass
+        
 class unitsConverter(object):
     
     def __init__(self):

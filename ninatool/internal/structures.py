@@ -297,14 +297,17 @@ class branch(Nlind):
                 
 class loop(Nlind):
     
-    def __init__(self, 
+    def __init__(self,
                  left_branch, 
-                 right_branch, 
+                 right_branch,
+                 stray_inductance = True,
                  name = '',
-                 observe_associated = True):
+                 observe_elements = True):
         
         self.__left_elements = left_branch
         self.__right_elements = right_branch
+        #if True, initializes later a series stray inductance
+        self.__has_Lstray = stray_inductance
         
         self.elements = self.left_elements + self.right_elements
         
@@ -317,7 +320,7 @@ class loop(Nlind):
         #the associated branch is responsible for computing the equilibrium
         #points of the loop
         self.__associated_branch = branch(elements = self.elements, 
-                                          observe_elements = True,
+                                          observe_elements = observe_elements,
                                           name = self.name + 
                                           '.associated_branch')
         #left and right branch are responsible for computing the expansion
@@ -347,7 +350,15 @@ class loop(Nlind):
                                    name = self.name + '.right_branch',
                                    manipulate_elements = False)
         
-        if observe_associated:
+        if self.has_Lstray:
+            self.__Lstray = L(
+                L = 1,
+                order = self.order, 
+                name = self.name + '.Lstray')
+            
+        self.Nloops = 1
+        
+        if observe_elements:
             self.subscribe()
             
         self.calc_coeffs()
@@ -381,6 +392,22 @@ class loop(Nlind):
     @property
     def right_elements(self):
         return(self.__right_elements)
+    
+    @property
+    def has_Lstray(self):
+        return(self.__has_Lstray)
+    
+    @property
+    def Lstray(self):
+        return(self.__Lstray)
+    
+    @property
+    def Nloops(self):
+        return(self.__Nloops)
+    
+    @property
+    def Nloops_mask(self):
+        return(self.__Nloops_mask)
 
     @property
     def left_adm(self):
@@ -396,22 +423,38 @@ class loop(Nlind):
         logging.debug('called free_phi setter of loop ' + str(self.name))
         
         self.associated_branch.free_phi = value
+        
+    @Nloops.setter
+    def Nloops(self, value):
+        if isinstance(value, int) and value > 0:
+            self.__Nloops = value
+            self.calc_Nloops_mask()
+            self.update()
+        else:
+            raise ValueError('Nloops can only be positive integer.')
 
     ### LOOP-SPECIFIC METHODS ###
-
+    
     def subscribe(self):
         logging.debug('called subscribe method of loop ' + str(self.name))
         
         self.add_observed(self.associated_branch)
         self.associated_branch.observer = self
+        if self.__has_Lstray:
+            self.add_observed(self.Lstray)
+            self.Lstray.observer = self
             
     def calc_coeffs(self):
         logging.debug('called calc_coeffs method of loop ' + str(self.name))
         
         self.left_branch.calc_coeffs()
         self.right_branch.calc_coeffs()
+        
+        self.adm = self.Nloops_mask * (self.left_adm + self.right_adm)
+        
+        if self.has_Lstray:
+            self.adm = self.series_combination(self.Lstray.adm, self.adm)
 
-        self.adm = self.left_adm + self.right_adm
         
     def update(self):
         logging.debug('called update method of loop ' + str(self.name))
@@ -425,6 +468,11 @@ class loop(Nlind):
         
         self.associated_branch.interpolate_results(phi_grid = phi_grid)
         self.update()
+        
+    def calc_Nloops_mask(self):
+        Nloops_mask = np.array([self.Nloops ** -(i + 1) for i in range(self.order)])
+        self.__Nloops_mask = Nloops_mask.reshape(self.order, 1)
+        
         
 class Nlosc:
     

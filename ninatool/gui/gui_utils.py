@@ -1,5 +1,5 @@
 from functools import partial
-from .gui_widgets import elementWidget
+from .gui_widgets import elementWidget, NloopsWidget
 
 def loop_left_adm(loop, index, units):
     return(loop.left_adm[index] * units.frequency_units)
@@ -43,14 +43,20 @@ def link_freePhiWidget(gui):
     elif gui.structure.kind == 'nlosc':
         nlind = gui.structure.nlind
     gui.freePhiWidget.signal.updated.connect(partial(update_freePhase, nlind, gui))
-    
 
-def create_elementWidgets(gui, elements):
+def create_elementWidget(gui, element):
+    widget = elementWidget(element)
+    widget.signal.updated.connect(gui.update_axes)
+    gui.elementsBox.addWidget(widget)
     
+def create_elementWidgets(gui, elements):
     for element in elements:
-        widget = elementWidget(element)
-        widget.signal.updated.connect(gui.update_axes)
-        gui.elementsBox.addWidget(widget)
+        create_elementWidget(gui, element)
+        
+def create_NloopsWidget(gui, loop):
+    widget = NloopsWidget(loop)
+    widget.signal.updated.connect(gui.update_axes)
+    gui.elementsBox.addWidget(widget)
     
 def load_branch(gui, branch):
     units = gui.unitsWidget
@@ -99,6 +105,10 @@ def load_loop(gui, loop):
     
     #loaded here to first list the loop quantities in axes combo
     load_branch(gui, loop.associated_branch)
+    if loop.has_Lstray:
+        create_elementWidget(gui, loop.Lstray)
+    #creates widget to change number of identical loops in series
+    create_NloopsWidget(gui, loop)
 
 def load_nlosc(gui, nlosc):
     units = gui.unitsWidget
