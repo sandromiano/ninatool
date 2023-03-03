@@ -84,4 +84,4 @@ For inquiries, comments, suggestions etc. you can contact NINA at superconductin
 
 # acknowledgemts
 
-NINA uses GUI widgets originally found in [pyqt-labutils](https://github.com/OE-FET/pyqt-labutils) github repo.
+NINA uses some GUI widgets from [pyqt-labutils](https://github.com/OE-FET/pyqt-labutils) repo.
