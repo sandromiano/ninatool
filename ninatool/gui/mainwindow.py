@@ -89,8 +89,8 @@ class mainwindow(QtWidgets.QMainWindow):
 
     def set_defaults(self):
         
-        #sets default free-phase
-        
+
+        #sets default plots
         if self.structure.kind == 'branch':
             defaultX = self.structure.name + '.phi'
             defaultY = self.structure.name + '.i'
@@ -104,14 +104,14 @@ class mainwindow(QtWidgets.QMainWindow):
             elif self.structure.nlind.kind == 'loop':
                 defaultX = self.structure.nlind.name + '.flux'
                 defaultY = self.structure.name + '.w'
-        
+                
         Xindex = findComboBoxIndex(self.xaxisWidget.Combo, defaultX)
         Yindex = findComboBoxIndex(self.yaxisWidget.Combo, defaultY)
-
         self.xaxisWidget.Combo.setCurrentIndex(Xindex)
         self.yaxisWidget.Combo.setCurrentIndex(Yindex)
         
-        self.freePhiWidget.LineEdit.insert('linspace(-.5,.5,201) * 2 * pi')
+        #sets default free-phase
+        self.freePhiWidget.LineEdit.insert('linspace(-1.,1.,201) * 2 * pi')
         self.freePhiWidget.update()
 
     def update_plot(self):
