@@ -265,6 +265,15 @@ class unitsWidget(QtWidgets.QWidget):
         UnitsBox.addWidget(UnitsLabel)
         UnitsBox.addWidget(self.frequencyUnitsDisplay)
         return(UnitsBox)
+    
+    def createPlotUnitsBox(self):
+        label = QtWidgets.QLabel('Plot units')
+        self.plotUnitsCombo = QtWidgets.QComboBox()
+        self.plotUnitsCombo.addItems(['SI', 'NINA UNITS'])
+        PlotUnitsBox = QtWidgets.QVBoxLayout()
+        PlotUnitsBox.addWidget(label)
+        PlotUnitsBox.addWidget(self.plotUnitsCombo)
+        return(PlotUnitsBox)
         
     def createLayout(self):
         unitsBoxHeader = QtWidgets.QLabel('Units')
@@ -275,6 +284,7 @@ class unitsWidget(QtWidgets.QWidget):
         allUnitsBox.addLayout(self.createCapacitanceUnitsBox())
         allUnitsBox.addLayout(self.createEnergyUnitsBox())
         allUnitsBox.addLayout(self.createFrequencyUnitsBox())
+        allUnitsBox.addLayout(self.createPlotUnitsBox())
         
         unitsBox = QtWidgets.QVBoxLayout()
         unitsBox.addWidget(unitsBoxHeader)
@@ -296,6 +306,36 @@ class unitsWidget(QtWidgets.QWidget):
     def updateFrequencyUnits(self):
         self.frequencyUnitsDisplay.setText(format_string.format(self.frequency_units) + ' Hz')
 
+        
+class unitsConverter(object):
+    
+    def __init__(self):
+        
+        self.__current_units = 1e-6    
+    
+    @property
+    def current_units(self):
+        return(self.__current_units)
+    
+    @property
+    def inductance_units(self):
+        return(Phi0 / (2 * pi * self.current_units))
+    
+    @property
+    def energy_units(self):
+        return(Phi0  * self.current_units / (2 * pi))
+    
+    @property
+    def capacitance_units(self):
+        return(pi * elementary_charge ** 2 / (Phi0 * self.current_units))
+    
+    @property
+    def frequency_units(self):
+        return(self.energy_units / h)
+        
+    def set_current_units(self, units):
+        self.__current_units = units
+        
 class NloopsWidget(QtWidgets.QWidget):
     
     def __init__(self, loop):
@@ -329,35 +369,7 @@ class NloopsWidget(QtWidgets.QWidget):
         self.signal.updated.emit()
         
     def updateFreeIndicator(self):
+        #only necessary to make this widget be accepted in the elementsBox.
         pass
-        
-class unitsConverter(object):
-    
-    def __init__(self):
-        
-        self.__current_units = 1e-6    
-    
-    @property
-    def current_units(self):
-        return(self.__current_units)
-    
-    @property
-    def inductance_units(self):
-        return(Phi0 / (2 * pi * self.current_units))
-    
-    @property
-    def energy_units(self):
-        return(Phi0  * self.current_units / (2 * pi))
-    
-    @property
-    def capacitance_units(self):
-        return(pi * elementary_charge ** 2 / (Phi0 * self.current_units))
-    
-    @property
-    def frequency_units(self):
-        return(self.energy_units / h)
-        
-    def set_current_units(self, units):
-        self.__current_units = units
 
     

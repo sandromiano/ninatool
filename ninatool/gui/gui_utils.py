@@ -6,22 +6,47 @@ def findComboBoxIndex(ComboBox, text):
     return(indx)
 
 def loop_left_adm(loop, index, units):
-    return(loop.left_adm[index] * units.frequency_units)
+    #checks plot units selection
+    if units.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = units.frequency_units
+    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+        scale_factor = 1
+    return(loop.left_adm[index] * scale_factor)
 
 def loop_right_adm(loop, index, units):
-    return(loop.right_adm[index] * units.frequency_units)
+    #checks plot units selection
+    if units.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = units.frequency_units
+    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+        scale_factor = 1
+    return(loop.right_adm[index] * scale_factor)
 
 def element_adm(element, index, units):
-    return(element.adm[index] * units.frequency_units)
+    #checks plot units selection
+    if units.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = units.frequency_units
+    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+        scale_factor = 1
+    return(element.adm[index] * scale_factor)
 
 def nlosc_gn(nlosc, index, units):
-    return(nlosc.gn[index] * units.frequency_units)
+    #checks plot units selection
+    if units.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = units.frequency_units
+    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+        scale_factor = 1
+    return(nlosc.gn[index] * scale_factor)
 
 def element_phi(element):
     return(element.phi)
 
 def element_i(element, units):
-    return(element.i * units.current_units)
+    #checks plot units selection
+    if units.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = units.current_units
+    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+        scale_factor = 1
+    return(element.i * scale_factor)
 
 def element_flux(element):
     return(element.flux)
@@ -33,7 +58,12 @@ def nlosc_nZPF(nlosc):
     return(nlosc.nZPF)
 
 def nlosc_omega(nlosc, units):
-    return(nlosc.omega * units.frequency_units)
+    #checks plot units selection
+    if units.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = units.frequency_units
+    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+        scale_factor = 1
+    return(nlosc.omega * scale_factor)
 
 def update_freePhase(nlind, gui):
     

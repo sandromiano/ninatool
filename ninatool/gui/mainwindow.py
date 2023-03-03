@@ -50,6 +50,7 @@ class mainwindow(QtWidgets.QMainWindow):
         self.xaxisWidget.Combo.currentIndexChanged.connect(self.update_axes)
         self.yaxisWidget.Combo.currentIndexChanged.connect(self.update_axes)
         self.unitsWidget.currentUnitsSpinBox.valueChanged.connect(self.update_axes)
+        self.unitsWidget.plotUnitsCombo.currentIndexChanged.connect(self.update_axes)
     
     def update_axes(self):
         
@@ -88,7 +89,6 @@ class mainwindow(QtWidgets.QMainWindow):
         self.create_CentralWidget()
 
     def set_defaults(self):
-        
 
         #sets default plots
         if self.structure.kind == 'branch':
@@ -118,13 +118,20 @@ class mainwindow(QtWidgets.QMainWindow):
         
         self.multivaluedWidget.Led.setChecked(not self.structure.multivalued)
         
+        if self.unitsWidget.plotUnitsCombo.currentText() == 'SI':
+            xunits = self.axesUnitsDict[self.XAxisSelection]
+            yunits = self.axesUnitsDict[self.YAxisSelection]
+        elif self.unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
+            xunits = 'NINA UNITS'
+            yunits = 'NINA UNITS'
+        
         self.plotWidget.XAxisItem.setLabel(
             text = self.XAxisSelection, 
-            units = self.axesUnitsDict[self.XAxisSelection])
+            units = xunits)
         
         self.plotWidget.YAxisItem.setLabel(
             text = self.YAxisSelection, 
-            units = self.axesUnitsDict[self.YAxisSelection])
+            units = yunits)
 
         self.plotWidget.plot.setData(self.xdata, self.ydata)
         
