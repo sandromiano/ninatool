@@ -2,3 +2,5 @@ build/
 ninatool.egg-info/
 *.pyc
 tests/
+__pycache__/
+*checkpoint.ipynb
