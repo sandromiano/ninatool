@@ -122,8 +122,8 @@ class mainwindow(QtWidgets.QMainWindow):
             xunits = self.axesUnitsDict[self.XAxisSelection]
             yunits = self.axesUnitsDict[self.YAxisSelection]
         elif self.unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
-            xunits = 'NINA UNITS'
-            yunits = 'NINA UNITS'
+            xunits = None
+            yunits = None
         
         self.plotWidget.XAxisItem.setLabel(
             text = self.XAxisSelection, 

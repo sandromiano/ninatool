@@ -1,12 +1,16 @@
 from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
-from numpy import linspace, array, inf
-from scipy.constants import pi, h, elementary_charge
+###
+#THIS IMPORT IS USED TO ALLOW eval() ON 
+#THE FREE_PHI WIDGET TO READ NP, LINSPACE, ARRAY
+from numpy import linspace, array, pi, inf
+###
+from ninatool.internal.tools import unitsConverter
 from .scientific_spinbox import ScienDSpinBox as ScientificDoubleSpinBox
 from .led_indicator import LedIndicator
 
-Phi0 = h / (2 * elementary_charge)
+#Format string for SI units
 format_string = '{:.3g}'
 
 class updated_signal(QObject):
@@ -208,7 +212,7 @@ class unitsWidget(QtWidgets.QWidget):
         return(self.unitsHandler.frequency_units)
     
     def updateCurrentUnits(self, units):
-        self.unitsHandler.set_current_units(units = units)
+        self.unitsHandler.current_units = units
         self.updateInductanceUnits()
         self.updateCapacitanceUnits()
         self.updateEnergyUnits()
@@ -304,37 +308,8 @@ class unitsWidget(QtWidgets.QWidget):
             format_string.format(self.energy_units) + ' J')
         
     def updateFrequencyUnits(self):
-        self.frequencyUnitsDisplay.setText(format_string.format(self.frequency_units) + ' Hz')
-
-        
-class unitsConverter(object):
-    
-    def __init__(self):
-        
-        self.__current_units = 1e-6    
-    
-    @property
-    def current_units(self):
-        return(self.__current_units)
-    
-    @property
-    def inductance_units(self):
-        return(Phi0 / (2 * pi * self.current_units))
-    
-    @property
-    def energy_units(self):
-        return(Phi0  * self.current_units / (2 * pi))
-    
-    @property
-    def capacitance_units(self):
-        return(pi * elementary_charge ** 2 / (Phi0 * self.current_units))
-    
-    @property
-    def frequency_units(self):
-        return(self.energy_units / h)
-        
-    def set_current_units(self, units):
-        self.__current_units = units
+        self.frequencyUnitsDisplay.setText(
+            format_string.format(self.frequency_units) + ' Hz')
         
 class NloopsWidget(QtWidgets.QWidget):
     

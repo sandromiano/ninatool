@@ -5,46 +5,46 @@ def findComboBoxIndex(ComboBox, text):
     indx = ComboBox.findText(text)
     return(indx)
 
-def loop_left_adm(loop, index, units):
+def loop_left_adm(loop, index, unitsWidget):
     #checks plot units selection
-    if units.plotUnitsCombo.currentText() == 'SI':
-        scale_factor = units.frequency_units
-    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = unitsWidget.frequency_units
+    elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
     return(loop.left_adm[index] * scale_factor)
 
-def loop_right_adm(loop, index, units):
+def loop_right_adm(loop, index, unitsWidget):
     #checks plot units selection
-    if units.plotUnitsCombo.currentText() == 'SI':
-        scale_factor = units.frequency_units
-    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = unitsWidget.frequency_units
+    elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
     return(loop.right_adm[index] * scale_factor)
 
-def element_adm(element, index, units):
+def element_adm(element, index, unitsWidget):
     #checks plot units selection
-    if units.plotUnitsCombo.currentText() == 'SI':
-        scale_factor = units.frequency_units
-    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = unitsWidget.frequency_units
+    elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
     return(element.adm[index] * scale_factor)
 
-def nlosc_gn(nlosc, index, units):
+def nlosc_gn(nlosc, index, unitsWidget):
     #checks plot units selection
-    if units.plotUnitsCombo.currentText() == 'SI':
-        scale_factor = units.frequency_units
-    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = unitsWidget.frequency_units
+    elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
     return(nlosc.gn[index] * scale_factor)
 
 def element_phi(element):
     return(element.phi)
 
-def element_i(element, units):
+def element_i(element, unitsWidget):
     #checks plot units selection
-    if units.plotUnitsCombo.currentText() == 'SI':
-        scale_factor = units.current_units
-    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = unitsWidget.current_units
+    elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
     return(element.i * scale_factor)
 
@@ -57,11 +57,11 @@ def nlosc_phiZPF(nlosc):
 def nlosc_nZPF(nlosc):
     return(nlosc.nZPF)
 
-def nlosc_omega(nlosc, units):
+def nlosc_omega(nlosc, unitsWidget):
     #checks plot units selection
-    if units.plotUnitsCombo.currentText() == 'SI':
-        scale_factor = units.frequency_units
-    elif units.plotUnitsCombo.currentText() == 'NINA UNITS':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = unitsWidget.frequency_units
+    elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
     return(nlosc.omega * scale_factor)
 
@@ -93,7 +93,7 @@ def create_NloopsWidget(gui, loop):
     gui.elementsBox.addWidget(widget)
     
 def load_branch(gui, branch):
-    units = gui.unitsWidget
+    unitsWidget = gui.unitsWidget
     create_elementWidgets(gui, branch.elements)
     axisName = branch.name
     for axisBox in [gui.xaxisWidget.Combo, gui.yaxisWidget.Combo]:
@@ -108,12 +108,12 @@ def load_branch(gui, branch):
     gui.axesUnitsDict[axisName + '.phi'] = 'rad'
     
     gui.axesDict[axisName + '.i'] = \
-        partial(element_i, branch, units)
+        partial(element_i, branch, unitsWidget)
     gui.axesUnitsDict[axisName + '.i'] = 'A'
     
     for i in range(branch.order):
         gui.axesDict[axisName + '.u' + str(i + 2)] = \
-            partial(element_adm, branch, i, units)
+            partial(element_adm, branch, i, unitsWidget)
         gui.axesUnitsDict[axisName + '.u' + str(i + 2)] = 'Hz'
     
     #loaded here to first list branch quantities in axes combo
@@ -121,7 +121,7 @@ def load_branch(gui, branch):
     link_freePhiWidget(gui)
 
 def load_loop(gui, loop):
-    units = gui.unitsWidget
+    unitsWidget = gui.unitsWidget
     axisName = loop.name
     for axisBox in [gui.xaxisWidget.Combo, gui.yaxisWidget.Combo]:
         axisBox.addItem(axisName + '.flux')
@@ -134,7 +134,7 @@ def load_loop(gui, loop):
     
     for i in range(loop.order):
         gui.axesDict[axisName + '.u' + str(i + 2)] = \
-            partial(element_adm, loop, i, units)
+            partial(element_adm, loop, i, unitsWidget)
         gui.axesUnitsDict[axisName + '.u' + str(i + 2)] = 'Hz'
     
     #loaded here to first list the loop quantities in axes combo
@@ -145,7 +145,7 @@ def load_loop(gui, loop):
     create_NloopsWidget(gui, loop)
 
 def load_nlosc(gui, nlosc):
-    units = gui.unitsWidget
+    unitsWidget = gui.unitsWidget
     #creates elementWidget for the nlosc capacitor
     create_elementWidgets(gui, [nlosc.cElem])
   
@@ -164,12 +164,12 @@ def load_nlosc(gui, nlosc):
     gui.axesDict[axisName + '.nZPF'] = partial(nlosc_nZPF, nlosc)
     gui.axesUnitsDict[axisName + '.nZPF'] = ''
     
-    gui.axesDict[axisName + '.w'] = partial(nlosc_omega, nlosc, units)
+    gui.axesDict[axisName + '.w'] = partial(nlosc_omega, nlosc, unitsWidget)
     gui.axesUnitsDict[axisName + '.w'] = 'Hz'
     
     for i in range(nlosc.nlind.order - 1):   
         gui.axesDict[axisName + '.g' + str(i + 3)] = \
-            partial(nlosc_gn, nlosc, i, units)
+            partial(nlosc_gn, nlosc, i, unitsWidget)
         gui.axesUnitsDict[axisName + '.g' + str(i + 3)] = 'Hz'
     
     #loaded here to first list the nlosc quantities in axes combo
@@ -180,7 +180,7 @@ def load_nlosc(gui, nlosc):
         load_loop(gui, nlind)
 
 def load_elements(gui, structure):
-    units = gui.unitsWidget
+    unitsWidget = gui.unitsWidget
     for element in structure.elements:
         axisName = element.name
         for axisBox in [gui.xaxisWidget.Combo, gui.yaxisWidget.Combo]:
@@ -189,17 +189,17 @@ def load_elements(gui, structure):
             #adm of a linear inductance is constant, no reason to plot!
             if element.kind != 'L':
                 for i in range(structure.order):
-                    axisBox.addItem(axisName + '.u' + str(i + 2), units)
+                    axisBox.addItem(axisName + '.u' + str(i + 2), unitsWidget)
 
         gui.axesDict[axisName + '.phi'] = partial(element_phi, element)
         gui.axesUnitsDict[axisName + '.phi'] = 'rad'
         
-        gui.axesDict[axisName + '.i'] = partial(element_i, element, units)
+        gui.axesDict[axisName + '.i'] = partial(element_i, element, unitsWidget)
         gui.axesUnitsDict[axisName + '.i'] = 'A' 
         #adm of a linear inductance is constant, no reason to plot!
         if element.kind != 'L':
             for i in range(structure.order):
                 gui.axesDict[axisName + '.u' + str(i + 2)] = \
-                    partial(element_adm, element, i, units)
+                    partial(element_adm, element, i, unitsWidget)
                 gui.axesUnitsDict[axisName + '.u' + str(i + 2)] = 'Hz'
     
