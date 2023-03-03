@@ -1,13 +1,14 @@
 from PyQt5 import QtWidgets
 from .gui_utils import load_loop, load_branch, load_nlosc, findComboBoxIndex
 from .gui_widgets import plotWidget, freePhiWidget, unitsWidget, multivaluedWidget
+import sys
 
 class mainwindow(QtWidgets.QMainWindow):
     
     def __init__(self, structure):
         
         super().__init__()
-        
+        self.setWindowTitle('ninaGUI')
         self.unitsWidget = unitsWidget()
         self.structure = structure
         self.elementsBox = QtWidgets.QHBoxLayout()
@@ -134,3 +135,11 @@ class mainwindow(QtWidgets.QMainWindow):
         
         for elementWidget in elementWidgets:
             elementWidget.widget().updateFreeIndicator()    
+
+def ninaGUI(circuit):
+    app = QtWidgets.QApplication(sys.argv)
+    window = mainwindow(circuit)
+    window.resize(600,600)
+    window.show()
+    app.exec()
+    del app
