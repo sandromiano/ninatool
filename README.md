@@ -71,7 +71,7 @@ as it will fail to load some necessary .txt files.
 
 Before using NINA, its useful to have a grasp of the paper linked in the **citing NINA** section of this README. This will clarify what the terms 'free', 'associated branch' etc. mean in NINA.
 Code is commented (except for the GUI, for now) and some tutorials will be published soon in the repository.
-You can start exploring NINA's functionalities running the .py files in 'test' folder and the .ipynb files in 'examples'.
+You can start exploring NINA's functionalities running the .ipynb files in 'examples'.
 
 # citing NINA
 
@@ -81,3 +81,7 @@ https://arxiv.org/abs/2302.03155.
 # contacts
 
 For inquiries, comments, suggestions etc. you can contact NINA at superconducting.nina@gmail.com.
+
+# acknowledgemts
+
+NINA uses GUI widgets originally found in [pyqt-labutils](https://github.com/OE-FET/pyqt-labutils) github repo.
