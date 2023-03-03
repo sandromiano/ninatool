@@ -30,7 +30,7 @@ $L_\mathrm{U} = \dfrac{\Phi_0}{2\pi I_\mathrm{U}}$
 
 $E_\mathrm{U} = \dfrac{\Phi_0 I_\mathrm{U}}{2\pi}$
 
-$F_\mathrm{U} = dfrac{E_\mathrm{U}}{h}$
+$F_\mathrm{U} = \dfrac{E_\mathrm{U}}{h}$
 
 $C_\mathrm{U} = \dfrac{\pi e^2}{\Phi_0 I_\mathrm{U}}$
 
