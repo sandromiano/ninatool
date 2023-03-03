@@ -1,4 +1,4 @@
 build/
 ninatool.egg-info/
 *.pyc
-*.pyc
+tests/
