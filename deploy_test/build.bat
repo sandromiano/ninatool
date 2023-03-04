@@ -1,0 +1,1 @@
+pyinstaller.exe --onefile --windowed --add-data 'D:/Documents/GitHub/ninatool/ninatool/internal/mapping_functions/*./mapping_functions/;' .\test_loop.py

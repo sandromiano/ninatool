@@ -1,4 +1,7 @@
 build/
+devel/
+deploy_test/dist/
+deploy_test/build/
 ninatool.egg-info/
 *.pyc
 tests/

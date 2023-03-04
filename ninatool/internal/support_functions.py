@@ -1,8 +1,28 @@
 import sympy as sp
 import numpy as np
 import os
+import sys
 
-symbolic_maps_dir = os.path.dirname((__file__)) + '/mapping_functions/'
+### FOR BUILD ###
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.environ.get("_MEIPASS2",os.path.abspath("."))
+
+    return os.path.join(base_path, relative_path)
+
+build = False
+
+if build:
+	symbolic_maps_dir = './'
+else:
+	symbolic_maps_dir = os.path.dirname((__file__)) + '/mapping_functions/'
+
+
 
 def check_order(elements):
     '''
@@ -118,4 +138,3 @@ def series_combination_partial(order):
         return(np.array([eval(f, {'a': a_adm, 'b' : b_adm}) for f in fs]))
     
     return(series_combination)
-
