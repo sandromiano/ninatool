@@ -4,3 +4,4 @@ ninatool.egg-info/
 tests/
 deploy_test/
 ninatool/__pycache__/
+index.html
