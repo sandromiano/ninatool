@@ -1,9 +1,6 @@
 build/
-devel/
-deploy_test/dist/
-deploy_test/build/
 ninatool.egg-info/
 *.pyc
 tests/
-__pycache__/
-*checkpoint.ipynb
+deploy_test/
+ninatool/__pycache__/

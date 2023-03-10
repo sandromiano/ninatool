@@ -1,13 +1,57 @@
 import logging
-import numpy as np
-from numpy import pi
+from numpy import pi, linspace, array, sqrt, interp
+from math import factorial
 from .elements import Nlind, L, J, C
 from .support_functions import check_order
 
 NUM_POINTS = 1001 # number of points for default phase array
 NUM_PERIODS = 2 # number of periods for default phase array
 
-default_phase_array = NUM_PERIODS * 2 * pi * np.linspace(-.5, .5, NUM_POINTS)
+default_phase_array = NUM_PERIODS * 2 * pi * linspace(-.5, .5, NUM_POINTS)
+
+def parse_series(elements):
+    '''
+    Parses a list of elements, assumed in series combination.
+    Returns a dictionary with the following keys:
+        
+        -'linear', BOOL (True if all elements are linear inductances). If TRUE,
+                        the returned free_element is the effective linear
+                        inductor with inductance equal to the sum of the
+                        inductances of each linear inductor in the series.
+                        
+        -'free_element', the free element of the branch.
+        
+        -'constrained_elements', list of constrained elements of the branch.
+    '''
+    DICT = {
+            'free_element' : None,
+            'constrained_elements' : None,
+            'linear' : False
+            }
+    
+    if not elements:
+        logging.info('parse_series: No elements to parse.')
+        return(None)
+    
+    JJs = [elem for elem in elements if elem.kind == 'J']
+    #if there are no JJs, defines the free-element as an effective linear
+    #inductance obtained by arraying all the linear inductances
+    if not JJs:
+        DICT['linear'] = True
+        Ltot = sum(elem.L0 for elem in elements)
+        DICT['free_element'] = L(L = Ltot, order = 1, name = 'Ltot')
+        DICT['constrained_elements'] = elements
+    else:
+        DICT['linear'] = False
+        ic = min(JJ.ic for JJ in JJs)
+        free_JJs = [JJ for JJ in JJs if JJ.ic == ic]
+        if len(free_JJs) > 1:
+            logging.info('More than one free JJ present. Only one will be' \
+                         'allowed to actually be free.')
+        DICT['free_element'] = free_JJs[0]
+        DICT['constrained_elements'] = \
+            list(set(elements) - set([DICT['free_element']]))
+        return(DICT)
 
 class branch(Nlind):
     '''
@@ -50,12 +94,13 @@ class branch(Nlind):
         self.__free_element = None
         self.__free_phi = default_phase_array
         self.__multivalued = False
+        self.__observe_elements = observe_elements
         self.__manipulate_elements = manipulate_elements
         #parses the branch to identify the free JJ and the constrained elements
         self.parse()
         #if required, the branch subscribes to receive update 
         #notifications from its elements.
-        if self.__manipulate_elements and observe_elements:
+        if self.__manipulate_elements and self.__observe_elements:
             self.subscribe()
         #solves the branch
         self.solve()
@@ -132,7 +177,31 @@ class branch(Nlind):
         for elem in self.elements:
             elem.i = self.i
     #----------------------------------------------------------------------------------------------------------------------#
-    
+    def add_element(self, element):
+        logging.debug('called add_element method of branch ' + self.name)
+        if isinstance(element, L) or isinstance(element, J):
+            if element not in self.elements:
+                self.__elements.append(element)
+                if self.__observe_elements:
+                    self.add_observed(element)
+                    element.observer = self
+                self.update()
+            else:
+                print('element is already part of the structure.')
+        else:
+            print('element must be instance of J or L NINA classes.')
+            
+    def remove_element(self, element):
+        logging.debug('called remove_element method of branch ' + self.name)
+        if element in self.elements:
+            self.__elements.remove(element)
+            if self.__observe_elements:
+                self._Nlind__observed.remove(element)
+                element.observer = None
+            self.update()
+        else:
+            print('element not present in the structure ' + self.name)
+            
     def subscribe(self):
         logging.debug('called subscribe method of branch ' + str(self.name))
         
@@ -151,13 +220,10 @@ class branch(Nlind):
         if len(self.JJs) == 0:
             self.__is_linear = True
             self.__constrained_elements = self.elements
-            #this is just a nasty trick to not recreate everytime the
-            #effective free element for a linear branch.
-            if self.__free_element is None:
-                self.__free_element = L(self.L0, order = self.order)
-            else:
-                self.__free_element.L0 = self.L0
-                
+            #in linear case, the free element is defined as an effective
+            #inductor of inductance equal to the sum of the inductances
+            #of all the inductors in the branch.
+            self.__free_element = L(self.L0, order = self.order)    
         else:
             self.__is_linear = False
             #defines critical current of the branch
@@ -194,8 +260,8 @@ class branch(Nlind):
                 #free_element.phi is only assigned here if the branch is
                 #allowed to manipulate the elements and has already been
                 #assigned a free_phi value
-                if self.__manipulate_elements and self.free_phi is not None:
-                    self.free_element.phi = self.free_phi
+        if self.__manipulate_elements and self.free_phi is not None:
+            self.free_element.phi = self.free_phi
             
     def check_multivalued(self):
         logging.debug('called check_multivalued method of branch '
@@ -206,7 +272,7 @@ class branch(Nlind):
         
         self.__beta = self.__constrained_L0 / self.free_element.L0
         
-        if self.beta < 1 and self.__is_free:
+        if self.beta > 1 and self.__is_free:
             logging.info('Branch ' + str(self.name) + ' is multivalued.')
             self.__multivalued = True
         else:
@@ -255,13 +321,10 @@ class branch(Nlind):
         logging.debug('called calc_coeffs method of branch '
                       + str(self.name))
         
-        if self.is_linear:
-            self.free_element.L0 = self.L0
+        if self.is_linear or len(self.constrained_elements) == 0:
             self.adm = self.free_element.adm
         elif not self.is_free:
             self.imp = sum([elem.imp for elem in self.elements])
-        elif len(self.constrained_elements) == 0:
-            self.adm = self.free_element.adm
         else:             
             #for the constrained elements, the expansion coefficients can
             #be computed with the impedance-like representation and then
@@ -290,7 +353,7 @@ class branch(Nlind):
                 print('Cannot interpolate multivalued results (yet).')
             else:
                 for elem in self.elements:
-                    elem.phi = np.interp(phi_grid, self.phi, elem.phi)
+                    elem.phi = interp(phi_grid, self.phi, elem.phi)
 
                 self._Nlind__i = self.free_element.i
                 self.calc_all()
@@ -309,8 +372,6 @@ class loop(Nlind):
         #if True, initializes later a series stray inductance
         self.__has_Lstray = stray_inductance
         
-        self.elements = self.left_elements + self.right_elements
-        
         self._Nlind__order = check_order(self.elements)
         
         super().__init__(order = self._Nlind__order)
@@ -323,36 +384,18 @@ class loop(Nlind):
                                           observe_elements = observe_elements,
                                           name = self.name + 
                                           '.associated_branch')
-        #left and right branch are responsible for computing the expansion
-        #coefficients of each arm of the dipole, after the associated branch
-        #has computed the equilibium points. left and right branches CANNOT
-        #manipulate the elements.
-        #these branches do not have to observe elements, otherwise
-        #will overwrite the associated branch as observer.
-        #In future, the associated branch will not be used and then these
-        #internal branches will have to be updated.
-        self.left_branch = branch(elements = self.left_elements,
-                                  observe_elements = False,
-                                  is_free = self.free_element in self.left_elements,
-                                  name = self.name + '.left_branch',
-                                  manipulate_elements = False)
+        
         #creates a mask array to invert the sign of odd coefficients for left
         #branch (default choice in the paper). Necessary to correctly compute 
         #the dipole admittance when solving the loop equilibrium points via 
         #the associated branch.
         adm_mask_list = [(-1) ** i for i in range(self.order)]
         #the reshape allows consistent ndarray operations
-        self.adm_mask = np.array(adm_mask_list).reshape(self.order, 1)
-        
-        self.right_branch = branch(elements = self.right_elements,
-                                   observe_elements = False,
-                                   is_free = self.free_element in self.right_elements,
-                                   name = self.name + '.right_branch',
-                                   manipulate_elements = False)
+        self.adm_mask = array(adm_mask_list).reshape(self.order, 1)
         
         if self.has_Lstray:
             self.__Lstray = L(
-                L = 1,
+                L = .1,
                 order = self.order, 
                 name = self.name + '.Lstray')
             
@@ -394,6 +437,10 @@ class loop(Nlind):
         return(self.__right_elements)
     
     @property
+    def elements(self):
+        return(self.left_elements + self.right_elements)
+    
+    @property
     def has_Lstray(self):
         return(self.__has_Lstray)
     
@@ -411,11 +458,32 @@ class loop(Nlind):
 
     @property
     def left_adm(self):
-        return(self.left_branch.adm * self.adm_mask)
+        if len(self.left_elements) == 1:
+            adm = self.left_elements[0].adm
+            return(adm * self.adm_mask)
+        elif self.free_element not in self.left_elements:
+            adm = self.invert_repr(sum(elem.imp for elem in self.left_elements))
+            return(adm * self.adm_mask)
+        else:
+            constrained_elements = list(set(self.left_elements) - set([self.free_element]))
+            constrained_adm = self.invert_repr(sum(elem.imp for elem in constrained_elements))
+            adm = self.series_combination(self.free_element.adm, constrained_adm)
+            return(adm * self.adm_mask)
     
     @property
     def right_adm(self):
-        return(self.right_branch.adm)
+        if len(self.right_elements) == 1:
+            adm = self.right_elements[0].adm
+            return(adm)
+        elif self.free_element not in self.right_elements:
+            adm = self.invert_repr(sum(elem.imp for elem in self.right_elements))
+            return(adm)
+        else:
+            constrained_elements = list(set(self.right_elements) - set([self.free_element]))
+            constrained_adm = self.invert_repr(sum(elem.imp for elem in constrained_elements))
+            adm = self.series_combination(self.free_element.adm, constrained_adm)
+            return(adm)
+        
     ### LOOP-SPECIFIC SETTERS ###
 
     @free_phi.setter
@@ -434,7 +502,22 @@ class loop(Nlind):
             raise ValueError('Nloops can only be positive integer.')
 
     ### LOOP-SPECIFIC METHODS ###
-    
+    def add_left_element(self, element):
+        self.__left_elements.append(element)
+        self.associated_branch.add_element(element)
+  
+    def add_right_element(self, element):
+        self.__right_elements.append(element)
+        self.associated_branch.add_element(element)
+
+    def remove_left_element(self, element):
+        self.__left_elements.remove(element)
+        self.associated_branch.remove_element(element)
+        
+    def remove_right_element(self, element):
+        self.right_elements.remove(element)
+        self.associated_branch.remove_element(element)
+        
     def subscribe(self):
         logging.debug('called subscribe method of loop ' + str(self.name))
         
@@ -447,9 +530,6 @@ class loop(Nlind):
     def calc_coeffs(self):
         logging.debug('called calc_coeffs method of loop ' + str(self.name))
         
-        self.left_branch.calc_coeffs()
-        self.right_branch.calc_coeffs()
-        
         self.adm = self.Nloops_mask * (self.left_adm + self.right_adm)
         
         if self.has_Lstray:
@@ -459,9 +539,6 @@ class loop(Nlind):
     def update(self):
         logging.debug('called update method of loop ' + str(self.name))
         
-        self.left_branch.is_free = self.free_element in self.left_elements
-        self.right_branch.is_free = self.free_element in self.right_elements
-
         self.calc_coeffs()
         
     def interpolate_results(self, phi_grid = default_phase_array):
@@ -470,9 +547,8 @@ class loop(Nlind):
         self.update()
         
     def calc_Nloops_mask(self):
-        Nloops_mask = np.array([self.Nloops ** -(i + 1) for i in range(self.order)])
+        Nloops_mask = array([self.Nloops ** -(i + 1) for i in range(self.order)])
         self.__Nloops_mask = Nloops_mask.reshape(self.order, 1)
-        
         
 class Nlosc:
     
@@ -513,25 +589,25 @@ class Nlosc:
         
     @property
     def phiZPF(self):
-        return(1/np.sqrt(2) * (8 * self.EC / self.nlind.adm[0]) ** 0.25)
+        return(1/sqrt(2) * (8 * self.EC / self.nlind.adm[0]) ** 0.25)
     
     @property
     def nZPF(self):
-        return(1/np.sqrt(2) * (self.nlind.adm[0] / (8 * self.EC)) ** 0.25)
+        return(1/sqrt(2) * (self.nlind.adm[0] / (8 * self.EC)) ** 0.25)
     
     @property
     def omega(self):
         #missing hbar at denominator
-        return(np.sqrt(8 * self.EC * self.nlind.adm[0]))
+        return(sqrt(8 * self.EC * self.nlind.adm[0]))
     
     @property
     def gn(self):
         #missing hbar at denominator
-        power_array = np.array([i + 3 for i in range(self.nlind.order -1)])
+        power_array = array([i + 3 for i in range(self.nlind.order -1)])
         
         power_array = power_array.reshape(self.nlind.order -1, 1)
         
-        factorial_array = np.array([np.math.factorial(i + 3) 
+        factorial_array = array([factorial(i + 3) 
                                     for i in range(self.nlind.order - 1)])
         
         factorial_array = factorial_array.reshape(self.nlind.order -1, 1)

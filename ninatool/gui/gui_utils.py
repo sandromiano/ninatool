@@ -48,6 +48,14 @@ def element_i(element, unitsWidget):
         scale_factor = 1
     return(element.i * scale_factor)
 
+def element_U(element, unitsWidget):
+    #checks plot units selection
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+        scale_factor = unitsWidget.frequency_units
+    elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
+        scale_factor = 1
+    return(element.U * scale_factor)
+
 def element_flux(element):
     return(element.flux)
 
@@ -99,6 +107,7 @@ def load_branch(gui, branch):
     for axisBox in [gui.xaxisWidget.Combo, gui.yaxisWidget.Combo]:
         axisBox.addItem(axisName + '.phi')
         axisBox.addItem(axisName + '.i')
+        axisBox.addItem(axisName + '.U')
         
         for i in range(branch.order):
             axisBox.addItem(axisName + '.u' + str(i + 2))
@@ -110,6 +119,10 @@ def load_branch(gui, branch):
     gui.axesDict[axisName + '.i'] = \
         partial(element_i, branch, unitsWidget)
     gui.axesUnitsDict[axisName + '.i'] = 'A'
+    
+    gui.axesDict[axisName + '.U'] = \
+        partial(element_U, branch, unitsWidget)
+    gui.axesUnitsDict[axisName + '.U'] = 'Hz'
     
     for i in range(branch.order):
         gui.axesDict[axisName + '.u' + str(i + 2)] = \
@@ -186,16 +199,23 @@ def load_elements(gui, structure):
         for axisBox in [gui.xaxisWidget.Combo, gui.yaxisWidget.Combo]:
             axisBox.addItem(axisName + '.phi')
             axisBox.addItem(axisName + '.i')
+            axisBox.addItem(axisName + '.U')
             #adm of a linear inductance is constant, no reason to plot!
             if element.kind != 'L':
                 for i in range(structure.order):
                     axisBox.addItem(axisName + '.u' + str(i + 2), unitsWidget)
 
-        gui.axesDict[axisName + '.phi'] = partial(element_phi, element)
+        gui.axesDict[axisName + '.phi'] = \
+            partial(element_phi, element)
         gui.axesUnitsDict[axisName + '.phi'] = 'rad'
         
-        gui.axesDict[axisName + '.i'] = partial(element_i, element, unitsWidget)
-        gui.axesUnitsDict[axisName + '.i'] = 'A' 
+        gui.axesDict[axisName + '.i'] = \
+            partial(element_i, element, unitsWidget)
+        gui.axesUnitsDict[axisName + '.i'] = 'A'
+        
+        gui.axesDict[axisName + '.U'] = \
+            partial(element_U, element, unitsWidget)
+        gui.axesUnitsDict[axisName + '.U'] = 'Hz'
         #adm of a linear inductance is constant, no reason to plot!
         if element.kind != 'L':
             for i in range(structure.order):

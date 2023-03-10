@@ -1,4 +1,6 @@
-from scipy.constants import pi, h, elementary_charge
+pi = 3.141592653589793
+h = 6.62607015e-34
+elementary_charge = 1.602176634e-19
 
 Phi0 = h / (2 * elementary_charge)
 

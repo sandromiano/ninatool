@@ -1,9 +1,12 @@
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QApplication
+from PyQt5.QtCore import QRectF
 from .gui_utils import load_loop, load_branch, load_nlosc, findComboBoxIndex
 from .gui_widgets import plotWidget, freePhiWidget, unitsWidget, multivaluedWidget
 import sys
 
-class mainwindow(QtWidgets.QMainWindow):
+padding = 0.1
+
+class mainwindow(QMainWindow):
     
     def __init__(self, structure):
         
@@ -11,7 +14,7 @@ class mainwindow(QtWidgets.QMainWindow):
         self.setWindowTitle('ninaGUI')
         self.unitsWidget = unitsWidget()
         self.structure = structure
-        self.elementsBox = QtWidgets.QHBoxLayout()
+        self.elementsBox = QHBoxLayout()
         self.freePhiWidget = freePhiWidget()
         self.plotWidget = plotWidget()
         self.multivaluedWidget = multivaluedWidget()
@@ -45,6 +48,25 @@ class mainwindow(QtWidgets.QMainWindow):
     def yaxisWidget(self):
         return(self.plotWidget.yaxisWidget)
        
+    @property
+    def zoom_rect(self):
+        width = self.plotWidget.graphWidget.sceneRect().width() * (1. + padding)
+        height = self.plotWidget.graphWidget.sceneRect().height() * (1. + padding)
+        center = self.plotWidget.graphWidget.sceneRect().center()
+        zoom_rect = QRectF(center.x() - width / 2., center.y() - height / 2., width, height)
+        return(zoom_rect)
+        
+### FOR RESCALING PLOT ###
+    def showEvent(self, e) -> None:
+        super().showEvent(e)
+        self.plotWidget.graphWidget.fitInView(self.zoom_rect)
+        
+    def resizeEvent(self, e) -> None:
+        super().resizeEvent(e)
+        self.plotWidget.graphWidget.fitInView(self.zoom_rect)
+### FOR RESCALING PLOT ###
+    
+    
     def connect_axes(self):
         
         self.xaxisWidget.Combo.currentIndexChanged.connect(self.update_axes)
@@ -72,14 +94,14 @@ class mainwindow(QtWidgets.QMainWindow):
 
     def create_CentralWidget(self):
         
-        box = QtWidgets.QVBoxLayout()
+        box = QVBoxLayout()
         box.addLayout(self.elementsBox)
         box.addWidget(self.freePhiWidget)
         box.addWidget(self.plotWidget)
         box.addWidget(self.multivaluedWidget)
         box.addWidget(self.unitsWidget)
 
-        centralWidget = QtWidgets.QWidget()
+        centralWidget = QWidget()
         centralWidget.setLayout(box)
         self.setCentralWidget(centralWidget)
         
@@ -116,7 +138,7 @@ class mainwindow(QtWidgets.QMainWindow):
 
     def update_plot(self):
         
-        self.multivaluedWidget.Led.setChecked(not self.structure.multivalued)
+        self.multivaluedWidget.Led.setChecked(self.structure.multivalued)
         
         if self.unitsWidget.plotUnitsCombo.currentText() == 'SI':
             xunits = self.axesUnitsDict[self.XAxisSelection]
@@ -128,6 +150,7 @@ class mainwindow(QtWidgets.QMainWindow):
         self.plotWidget.XAxisItem.setLabel(
             text = self.XAxisSelection, 
             units = xunits)
+
         
         self.plotWidget.YAxisItem.setLabel(
             text = self.YAxisSelection, 
@@ -144,9 +167,8 @@ class mainwindow(QtWidgets.QMainWindow):
             elementWidget.widget().updateFreeIndicator()    
 
 def ninaGUI(circuit):
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     window = mainwindow(circuit)
-    window.resize(600,600)
     window.show()
     app.exec()
     del app

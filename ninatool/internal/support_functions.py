@@ -1,27 +1,25 @@
-import sympy as sp
-import numpy as np
+from sympy import symbols, Function, diff, apart
+from numpy import array
 import os
-import sys
 
 ### FOR BUILD ###
 
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.environ.get("_MEIPASS2",os.path.abspath("."))
+# def resource_path(relative_path):
+#     """ Get absolute path to resource, works for dev and for PyInstaller """
+#     try:
+#         # PyInstaller creates a temp folder and stores path in _MEIPASS
+#         base_path = sys._MEIPASS
+#     except Exception:
+#         base_path = os.environ.get("_MEIPASS2",os.path.abspath("."))
 
-    return os.path.join(base_path, relative_path)
+#     return os.path.join(base_path, relative_path)
 
 build = False
 
 if build:
-	symbolic_maps_dir = './'
+    symbolic_maps_dir = './mapping_functions/'
 else:
-	symbolic_maps_dir = os.path.dirname((__file__)) + '/mapping_functions/'
-
+    symbolic_maps_dir = os.path.dirname((__file__)) + '/mapping_functions/'
 
 
 def check_order(elements):
@@ -57,17 +55,17 @@ def f_exprs(order):
     '''
     
     ### independent variable of g(y)
-    y = sp.symbols('y', real = True)
+    y = symbols('y', real = True)
     ### list of g(y) functions
-    gs = [sp.Function('g' + str(i))(y) for i in range(order)]
+    gs = [Function('g' + str(i))(y) for i in range(order)]
     ### list of f(g(y)) functions
     fs = [1/gs[0]]
     ### list of derivatives of g(y) functions
-    dgs = [sp.diff(g, y) for g in gs[:-1]]
+    dgs = [diff(g, y) for g in gs[:-1]]
     ### list of substitutions for derivatives of g(y) functions
     dgs_sub = gs[1:] 
     ### list of g symbols
-    g_syms = [sp.symbols('g[' + str(i) + ']') for i in range(order)]
+    g_syms = [symbols('g[' + str(i) + ']') for i in range(order)]
     ### list of f symbols
     f_syms = [1/g_syms[0]]
     
@@ -91,9 +89,9 @@ def f_exprs(order):
     ### Generates f functions expressed with g symbols ###    
     for i in range(order - 1):
         ### f[n] = 1/g[0] * df[n-1]
-        df = 1/gs[0] * sp.diff(fs[-1],y)
+        df = 1/gs[0] * diff(fs[-1],y)
         df = subs_diff(df) 
-        fs.append(sp.apart(df, fs[0]))    
+        fs.append(apart(df, fs[0]))    
         f_syms.append(subs_sym(fs[-1]))
     
     f_exprs = [str(f_sym) for f_sym in f_syms]    
@@ -120,7 +118,7 @@ def invert_representation_partial(order):
 
     def invert_representation(vals):
         
-        return(np.array([eval(f, {'g' : vals}) for f in fs]))   
+        return(array([eval(f, {'g' : vals}) for f in fs]))   
     
     return(invert_representation)
 
@@ -135,6 +133,6 @@ def series_combination_partial(order):
     
     def series_combination(a_adm, b_adm):
         
-        return(np.array([eval(f, {'a': a_adm, 'b' : b_adm}) for f in fs]))
+        return(array([eval(f, {'a': a_adm, 'b' : b_adm}) for f in fs]))
     
     return(series_combination)

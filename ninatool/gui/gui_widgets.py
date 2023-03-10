@@ -1,10 +1,10 @@
-from PyQt5.QtCore import Qt, QObject, pyqtSignal
-from PyQt5 import QtWidgets
+from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtWidgets import QDoubleSpinBox, QLabel, QLineEdit, QWidget, QHBoxLayout, QVBoxLayout, QComboBox, QSpinBox
 import pyqtgraph as pg
 ###
 #THIS IMPORT IS USED TO ALLOW eval() ON 
 #THE FREE_PHI WIDGET TO READ NP, LINSPACE, ARRAY
-from numpy import linspace, array, pi, inf
+from numpy import inf, array, linspace, pi
 ###
 from ninatool.internal.tools import unitsConverter
 from .scientific_spinbox import ScienDSpinBox as ScientificDoubleSpinBox
@@ -21,7 +21,7 @@ class updated_signal(QObject):
         super().__init__()
         pass
 
-class elementWidget(QtWidgets.QWidget):
+class elementWidget(QWidget):
     
     def __init__(self, element):
         
@@ -32,7 +32,7 @@ class elementWidget(QtWidgets.QWidget):
     
     def create_elementBox(self):
         
-        elementSpinBox = QtWidgets.QDoubleSpinBox(self)
+        elementSpinBox = QDoubleSpinBox(self)
         elementSpinBox.setMaximumWidth(100)
         elementSpinBox.setMinimum(0.01)
         elementSpinBox.setMaximum(inf)
@@ -48,19 +48,19 @@ class elementWidget(QtWidgets.QWidget):
             parString = '.C'
             elementSpinBox.setValue(self.element.C)
             
-        elementLabel = QtWidgets.QLabel(self.element.name + parString)
+        elementLabel = QLabel(self.element.name + parString)
         
         elementSpinBox.valueChanged.connect(self.update)
         
-        Box = QtWidgets.QVBoxLayout()
+        Box = QVBoxLayout()
         Box.addWidget(elementLabel)
         Box.addWidget(elementSpinBox)
         
         if self.element.kind =='J':
-            self.isFreeLabel = QtWidgets.QLabel('free')
+            self.isFreeLabel = QLabel('free')
             Box.addWidget(self.isFreeLabel)
         else: #this is a nasty trick to align non JJ boxes... Fix it!!!
-            self.isFreeLabel = QtWidgets.QLabel('')
+            self.isFreeLabel = QLabel('')
             self.isFreeLabel.setStyleSheet('font-size: 12px')
             Box.addWidget(self.isFreeLabel)
         
@@ -88,19 +88,20 @@ class elementWidget(QtWidgets.QWidget):
                                                font-weight: bold; \
                                                font-size: 12px')
 
-class freePhiWidget(QtWidgets.QWidget):
+class freePhiWidget(QWidget):
 
     def __init__(self):
         
         super().__init__()
         
         self.freePhase = None
-        self.LineEdit = QtWidgets.QLineEdit()
-        Label = QtWidgets.QLabel('free_element.phi')
+        self.LineEdit = QLineEdit()
+        self.LineEdit.setMaximumWidth(300)
+        Label = QLabel('free_element.phi')
         self.signal = updated_signal()
         self.LineEdit.editingFinished.connect(self.update)
 
-        Box = QtWidgets.QVBoxLayout()
+        Box = QVBoxLayout()
         Box.addWidget(Label)
         Box.addWidget(self.LineEdit)
         self.setLayout(Box)
@@ -109,16 +110,16 @@ class freePhiWidget(QtWidgets.QWidget):
         self.freePhase = eval(self.LineEdit.text())
         self.signal.updated.emit()
         
-class multivaluedWidget(QtWidgets.QWidget):
+class multivaluedWidget(QWidget):
 
     def __init__(self):
         
         super().__init__()
 
         self.Led = LedIndicator()
-        label = QtWidgets.QLabel('multivalued')
+        label = QLabel('multivalued')
 
-        box = QtWidgets.QHBoxLayout()
+        box = QHBoxLayout()
         box.addWidget(self.Led)
         box.addWidget(label)
         box.addStretch()
@@ -126,19 +127,19 @@ class multivaluedWidget(QtWidgets.QWidget):
         
         self.setLayout(box)
         
-class axisWidget(QtWidgets.QWidget):
+class axisWidget(QWidget):
     
     def __init__(self, label = ''):
         
         super().__init__()
         
-        self.Combo = QtWidgets.QComboBox()
+        self.Combo = QComboBox()
         self.Combo.setMaximumWidth(300)
         
-        Label = QtWidgets.QLabel()
+        Label = QLabel()
         Label.setText(label)
         
-        Box = QtWidgets.QVBoxLayout()
+        Box = QVBoxLayout()
         
         Box.addWidget(Label)
         Box.addWidget(self.Combo)
@@ -148,26 +149,30 @@ class axisWidget(QtWidgets.QWidget):
     def addItem(self, item):
         self.Combo.addItem(item)
         
-class plotWidget(QtWidgets.QWidget):
+class plotWidget(QWidget):
     
     def __init__(self):
         
         super().__init__()
         
         self.graphWidget = pg.PlotWidget()
+        self.plotItem = self.graphWidget.plotItem
         self.graphWidget.setBackground('k')
 
         pen = pg.mkPen(color=(0, 255, 150), width= 2)
         self.plot = self.graphWidget.plot(pen = pen)
+        l = pg.GraphicsLayout()
+        l.layout.setContentsMargins(0, 0, 0, 0)
+
         
         self.xaxisWidget = axisWidget(label = 'X axis')
         self.yaxisWidget = axisWidget(label = 'Y axis')
       
-        self.axesBox = QtWidgets.QHBoxLayout()
+        self.axesBox = QHBoxLayout()
         self.axesBox.addWidget(self.xaxisWidget)
         self.axesBox.addWidget(self.yaxisWidget)  
       
-        plotLayout = QtWidgets.QVBoxLayout()
+        plotLayout = QVBoxLayout()
         plotLayout.addLayout(self.axesBox)
         plotLayout.addWidget(self.graphWidget)
         
@@ -175,13 +180,18 @@ class plotWidget(QtWidgets.QWidget):
         self.XAxisItem.setGrid(255)
         self.YAxisItem = pg.AxisItem('left')
         self.YAxisItem.setGrid(255)
+        
+        self.XFrameAxisItem = pg.AxisItem('top', showValues = False, maxTickLength = 0)
+        self.YFrameAxisItem = pg.AxisItem('right', showValues = False, maxTickLength = 0)
+
 
         self.graphWidget.setAxisItems(
-            axisItems = {'bottom' : self.XAxisItem, 'left' : self.YAxisItem})
+            axisItems = {'bottom' : self.XAxisItem, 'left' : self.YAxisItem,
+                         'top' : self.XFrameAxisItem, 'right' : self.YFrameAxisItem})
         
         self.setLayout(plotLayout)
 
-class unitsWidget(QtWidgets.QWidget):
+class unitsWidget(QWidget):
     
     def __init__(self):
         
@@ -219,70 +229,71 @@ class unitsWidget(QtWidgets.QWidget):
         self.updateFrequencyUnits()
     
     def createCurrentUnitsBox(self):
-        currentUnitsLabel = QtWidgets.QLabel('Current')
+        currentUnitsLabel = QLabel('Current')
         self.currentUnitsSpinBox = ScientificDoubleSpinBox()
-        self.currentUnitsSpinBox.setMaximumWidth(80)
+        self.currentUnitsSpinBox.setMaximumWidth(120)
         self.currentUnitsSpinBox.setSuffix('A')
         self.currentUnitsSpinBox.setDecimals(1)
         self.currentUnitsSpinBox.valueChanged.connect(self.updateCurrentUnits)
-        currentUnitsBox = QtWidgets.QVBoxLayout()
+        currentUnitsBox = QVBoxLayout()
         currentUnitsBox.addWidget(currentUnitsLabel)
         currentUnitsBox.addWidget(self.currentUnitsSpinBox)
         return(currentUnitsBox)
     
     def createInductanceUnitsBox(self):
-        UnitsLabel = QtWidgets.QLabel('Inductance')
-        self.inductanceUnitsDisplay = QtWidgets.QLabel()
+        UnitsLabel = QLabel('Inductance')
+        self.inductanceUnitsDisplay = QLabel()
         self.inductanceUnitsDisplay.setMaximumWidth(100)
         self.updateInductanceUnits()
-        UnitsBox = QtWidgets.QVBoxLayout()
+        UnitsBox = QVBoxLayout()
         UnitsBox.addWidget(UnitsLabel)
         UnitsBox.addWidget(self.inductanceUnitsDisplay)
         return(UnitsBox)
     
     def createCapacitanceUnitsBox(self):
-        UnitsLabel = QtWidgets.QLabel('Capacitance')
-        self.capacitanceUnitsDisplay = QtWidgets.QLabel()
+        UnitsLabel = QLabel('Capacitance')
+        self.capacitanceUnitsDisplay = QLabel()
         self.capacitanceUnitsDisplay.setMaximumWidth(100)
         self.updateCapacitanceUnits()
-        UnitsBox = QtWidgets.QVBoxLayout()
+        UnitsBox = QVBoxLayout()
         UnitsBox.addWidget(UnitsLabel)
         UnitsBox.addWidget(self.capacitanceUnitsDisplay)
         return(UnitsBox)
     
     def createEnergyUnitsBox(self):
-        UnitsLabel = QtWidgets.QLabel('Energy')
-        self.energyUnitsDisplay = QtWidgets.QLabel()
+        UnitsLabel = QLabel('Energy')
+        self.energyUnitsDisplay = QLabel()
         self.energyUnitsDisplay.setMaximumWidth(100)
         self.updateEnergyUnits()
-        UnitsBox = QtWidgets.QVBoxLayout()
+        UnitsBox = QVBoxLayout()
         UnitsBox.addWidget(UnitsLabel)
         UnitsBox.addWidget(self.energyUnitsDisplay)
         return(UnitsBox)
     
     def createFrequencyUnitsBox(self):
-        UnitsLabel = QtWidgets.QLabel('Frequency')
-        self.frequencyUnitsDisplay = QtWidgets.QLabel()
+        UnitsLabel = QLabel('Frequency')
+        self.frequencyUnitsDisplay = QLabel()
         self.frequencyUnitsDisplay.setMaximumWidth(100)
         self.updateFrequencyUnits()
-        UnitsBox = QtWidgets.QVBoxLayout()
+        UnitsBox = QVBoxLayout()
         UnitsBox.addWidget(UnitsLabel)
         UnitsBox.addWidget(self.frequencyUnitsDisplay)
         return(UnitsBox)
     
     def createPlotUnitsBox(self):
-        label = QtWidgets.QLabel('Plot units')
-        self.plotUnitsCombo = QtWidgets.QComboBox()
+        label = QLabel('Plot units')
+        self.plotUnitsCombo = QComboBox()
+        self.plotUnitsCombo.setMaximumWidth(130)
         self.plotUnitsCombo.addItems(['SI', 'NINA UNITS'])
-        PlotUnitsBox = QtWidgets.QVBoxLayout()
+        PlotUnitsBox = QVBoxLayout()
         PlotUnitsBox.addWidget(label)
         PlotUnitsBox.addWidget(self.plotUnitsCombo)
         return(PlotUnitsBox)
         
     def createLayout(self):
-        unitsBoxHeader = QtWidgets.QLabel('Units')
+        unitsBoxHeader = QLabel('Units')
         unitsBoxHeader.setStyleSheet('font-size : 12pt')
-        allUnitsBox = QtWidgets.QHBoxLayout()
+        allUnitsBox = QHBoxLayout()
         allUnitsBox.addLayout(self.createCurrentUnitsBox())
         allUnitsBox.addLayout(self.createInductanceUnitsBox())
         allUnitsBox.addLayout(self.createCapacitanceUnitsBox())
@@ -290,7 +301,7 @@ class unitsWidget(QtWidgets.QWidget):
         allUnitsBox.addLayout(self.createFrequencyUnitsBox())
         allUnitsBox.addLayout(self.createPlotUnitsBox())
         
-        unitsBox = QtWidgets.QVBoxLayout()
+        unitsBox = QVBoxLayout()
         unitsBox.addWidget(unitsBoxHeader)
         unitsBox.addLayout(allUnitsBox)
         self.setLayout(unitsBox)
@@ -311,7 +322,7 @@ class unitsWidget(QtWidgets.QWidget):
         self.frequencyUnitsDisplay.setText(
             format_string.format(self.frequency_units) + ' Hz')
         
-class NloopsWidget(QtWidgets.QWidget):
+class NloopsWidget(QWidget):
     
     def __init__(self, loop):
         
@@ -320,19 +331,20 @@ class NloopsWidget(QtWidgets.QWidget):
         self.loop = loop
         self.signal = updated_signal()
         
-        label = QtWidgets.QLabel(loop.name + '.Nloops')
+        label = QLabel(loop.name + '.Nloops')
         
-        self.SpinBox = QtWidgets.QSpinBox()
+        self.SpinBox = QSpinBox()
+        self.SpinBox.setMaximumWidth(100)
         self.SpinBox.setMinimum(1)
         self.SpinBox.setMaximum(int(1e3))
         self.SpinBox.setValue(1)
         self.SpinBox.valueChanged.connect(self.update)
         
         #this is a nasty trick to align non JJ boxes... Fix it!!!
-        self.isFreeLabel = QtWidgets.QLabel('')
+        self.isFreeLabel = QLabel('')
         self.isFreeLabel.setStyleSheet('font-size: 12px')
 
-        box = QtWidgets.QVBoxLayout()
+        box = QVBoxLayout()
         box.addWidget(label)
         box.addWidget(self.SpinBox)
         box.addWidget(self.isFreeLabel)
@@ -346,5 +358,9 @@ class NloopsWidget(QtWidgets.QWidget):
     def updateFreeIndicator(self):
         #only necessary to make this widget be accepted in the elementsBox.
         pass
+
+### THIS IS FOR RESCALING PLOT VIEW
+
+
 
     

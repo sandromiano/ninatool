@@ -1,5 +1,6 @@
-import sympy as sp
-import numpy as np
+from sympy import symbols, diff
+from sympy import cos as sp_cos
+from numpy import array, ndarray, sin, cos, arcsin
 from .support_functions import invert_representation_partial, \
                                series_combination_partial
 
@@ -9,7 +10,6 @@ def check_real_number(value):
         return(True)
     else:
         return(False)
-
 
 class Nlind(object) :
     '''
@@ -162,9 +162,9 @@ class Nlind(object) :
     @phi.setter
     def phi(self, phi):
         
-        if not isinstance(phi, np.ndarray):
+        if not isinstance(phi, ndarray):
             if check_real_number(phi):
-                phi = np.array([phi])
+                phi = array([phi])
             else:
                 raise ValueError("Cannot set " + self.name + ".phi. Value " +\
                                  "needs to be either an array or real number.")
@@ -193,13 +193,13 @@ class Nlind(object) :
 
     @adm.setter
     def adm(self, adm):
-        self.__adm = np.array(adm)
-        self.__imp = np.array(self.invert_repr(adm))
+        self.__adm = array(adm)
+        self.__imp = array(self.invert_repr(adm))
         
     @imp.setter
     def imp(self, imp):
-        self.__imp = np.array(imp)
-        self.__adm = np.array(self.invert_repr(imp))
+        self.__imp = array(imp)
+        self.__adm = array(self.invert_repr(imp))
     
     ### METHODS ###
     
@@ -309,7 +309,7 @@ class L(Nlind):
         #impedance of a linear inductance is nonzero only for first order
         imp_list = [self.L0] + [0.0 for i in range(self.order - 1)]
         #the reshape allows consistent ndarray operations
-        self.imp = np.array(imp_list).reshape(self.order, 1)
+        self.imp = array(imp_list).reshape(self.order, 1)
     
     ### END OF 'L' CLASS ###
 
@@ -387,7 +387,7 @@ class J(Nlind):
         the phase drop across it. Can be updated to include higher order 
         effects as second harmonic, etc.
         '''
-        self._Nlind__i = self.ic * np.sin(self.phi)
+        self._Nlind__i = self.ic * sin(self.phi)
 
     def calc_phase(self):
         '''
@@ -395,34 +395,34 @@ class J(Nlind):
         current flowing through it. Implicitly assumes that the JJ is
         constrained.
         '''
-        self._Nlind__phi = np.arcsin(self.i / self.ic)
+        self._Nlind__phi = arcsin(self.i / self.ic)
  
     def calc_potential(self):
         '''
         Computes the potential energy of the J instance as a function of the 
         phase drop across it.
         '''
-        self._Nlind__U = self.ic * (1 - np.cos(self.phi))
+        self._Nlind__U = self.ic * (1 - cos(self.phi))
 
     def calc_inductance(self):
         '''
         Computes the differential linear inductance of the J instance as
         a function of the phase drop across it.
         '''
-        self._Nlind__L = self.L0 / np.cos(self.phi)
+        self._Nlind__L = self.L0 / cos(self.phi)
 
     def calc_coeffs(self):
         '''
         Computes potential energy expansion coefficients of the J instance
         for all the values of the phase drop across it.
         '''
-        phi = sp.symbols('phi', real = True)
-        adm_list = [self.ic * sp.cos(phi)]
+        phi = symbols('phi', real = True)
+        adm_list = [self.ic * sp_cos(phi)]
 
         for i in range(self.order - 1):
-            adm_list.append(sp.diff(adm_list[-1], phi))
+            adm_list.append(diff(adm_list[-1], phi))
         
-        keys = {'phi' : self.phi, 'cos' : np.cos, 'sin' : np.sin}
+        keys = {'phi' : self.phi, 'cos' : cos, 'sin' : sin}
         self.adm = [eval(str(adm_list[i]), keys) for i in range(self.order)]
 
     ### END OF 'J' CLASS ###
