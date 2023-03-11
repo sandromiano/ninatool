@@ -77,8 +77,7 @@ You can start exploring NINA's functionalities running the .ipynb files in 'exam
 
 # citing NINA
 
-If you use NINA for your research, be a good citizen and cite this article 
-https://arxiv.org/abs/2302.03155.
+If you use NINA for your research, be a good citizen and cite [**this article**](https://arxiv.org/abs/2302.03155).
 
 # contacts
 
