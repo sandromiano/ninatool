@@ -71,7 +71,7 @@ as it will fail to load some necessary .txt files.
 
 # learning NINA
 
-Before using NINA, its useful to have a grasp of the paper linked in the **citing NINA** section of this README. This will clarify what the terms 'free', 'associated branch' etc. mean in NINA.
+Before using NINA, its useful to have a grasp of [**this article**](https://arxiv.org/abs/2302.03155). It will clarify what the terms **free**, **associated branch** etc. mean in NINA.
 Code is commented (except for the GUI, for now) and some tutorials will be published soon in the repository.
 You can start exploring NINA's functionalities running the .ipynb files in 'examples'.
 
