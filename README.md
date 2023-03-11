@@ -2,7 +2,7 @@
 
 The 'Nonlinear Inductive Network Analyzer' (NINA) tool is a python package to analyze 
 the low-energy properties of superconducting circuits, based on the theory presented 
-in the paper [**Hamiltonian extrema of an arbitrary Josephson circuit**](https://arxiv.org/abs/2302.03155).
+in the paper [**"Hamiltonian extrema of an arbitrary Josephson circuit"**](https://arxiv.org/abs/2302.03155).
 
 The main functionality of NINA is to compute the Taylor expansion coefficient of the 
 effective potential energy function of an arbitrary flux-biased superconducting loop. 
