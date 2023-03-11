@@ -255,6 +255,7 @@ class L(Nlind):
     @property
     def EL(self):
         return(1/self.L0)
+    
     ### CLASS-SPECIFIC SETTERS, OVERRIDE Nlind ONES    
     
     @Nlind.ic.setter
