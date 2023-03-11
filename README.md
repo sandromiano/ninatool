@@ -34,8 +34,8 @@ $F_\mathrm{U} = \dfrac{E_\mathrm{U}}{h}$
 $C_\mathrm{U} = \dfrac{\pi e^2}{\Phi_0 I_\mathrm{U}}$
 
 where 
-$\Phi_0 \approx 2.067 \times 10^{-15}\;\mathrm{Wb}$ is the magnetic flux quantum and 
-$e \approx 1.6 \times 10^{-19}\;\mathrm{C}$ is the electron charge.
+$\Phi_0 \approx 2.067 \times 10^{-15}\text{ }\mathrm{Wb}$ is the magnetic flux quantum and 
+$e \approx 1.6 \times 10^{-19}\text{ }\mathrm{C}$ is the electron charge.
 
 Phase units are in radians.
 
