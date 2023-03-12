@@ -363,7 +363,7 @@ class loop(Nlind):
     def __init__(self,
                  left_branch, 
                  right_branch,
-                 stray_inductance = True,
+                 stray_inductance = False,
                  name = '',
                  observe_elements = True):
         
