@@ -6,4 +6,4 @@ tests/
 deploy_test/
 ninatool/__pycache__/
 index.html
-examples/.ipynb-checkpoints/
+examples/.ipynb_checkpoints/
