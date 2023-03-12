@@ -2,8 +2,7 @@
 
 The 'Nonlinear Inductive Network Analyzer' (NINA) tool is a python package to analyze 
 the low-energy properties of superconducting circuits, based on the theory presented 
-in the paper **Hamiltonian extrema of an arbitrary Josephson circuit**, available at 
-https://arxiv.org/abs/2302.03155.
+in the paper [**"Hamiltonian extrema of an arbitrary Josephson circuit"**](https://arxiv.org/abs/2302.03155).
 
 The main functionality of NINA is to compute the Taylor expansion coefficient of the 
 effective potential energy function of an arbitrary flux-biased superconducting loop. 
@@ -35,8 +34,8 @@ $F_\mathrm{U} = \dfrac{E_\mathrm{U}}{h}$
 $C_\mathrm{U} = \dfrac{\pi e^2}{\Phi_0 I_\mathrm{U}}$
 
 where 
-$\Phi_0 \approx 2.067 \times 10^{-15}$ Wb is the magnetic flux quantum and 
-$e \approx 1.6 \times 10^{-19}\mathrm{C}$ is the electron charge.
+$\Phi_0 \approx 2.067 \times 10^{-15}\text{ }\mathrm{Wb}$ is the magnetic flux quantum and 
+$e \approx 1.6 \times 10^{-19}\text{ }\mathrm{C}$ is the electron charge.
 
 Phase units are in radians.
 
@@ -72,18 +71,17 @@ as it will fail to load some necessary .txt files.
 
 # learning NINA
 
-Before using NINA, its useful to have a grasp of the paper linked in the **citing NINA** section of this README. This will clarify what the terms 'free', 'associated branch' etc. mean in NINA.
+Before using NINA, its useful to have a grasp of [**this article**](https://arxiv.org/abs/2302.03155). It will clarify what the terms **free**, **associated branch** etc. mean in NINA.
 Code is commented (except for the GUI, for now) and some tutorials will be published soon in the repository.
 You can start exploring NINA's functionalities running the .ipynb files in 'examples'.
 
 # citing NINA
 
-If you use NINA for your research, be a good citizen and cite this article 
-https://arxiv.org/abs/2302.03155.
+If you use NINA for your research, be a good citizen and cite [**this article**](https://arxiv.org/abs/2302.03155).
 
 # contacts
 
-For inquiries, comments, suggestions etc. you can contact the authors at superconducting.nina@gmail.com.
+For inquiries, comments, suggestions etc. you can contact the authors at **superconducting.nina@gmail.com**.
 
 # acknowledgemts
 
