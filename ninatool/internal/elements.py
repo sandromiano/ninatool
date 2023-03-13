@@ -1,6 +1,7 @@
+import logging
 from sympy import symbols, diff
 from sympy import cos as sp_cos
-from numpy import array, ndarray, sin, cos, arcsin
+from numpy import array, ndarray, sin, cos, arcsin, pi
 from .support_functions import invert_representation_partial, \
                                series_combination_partial
 
@@ -338,9 +339,8 @@ class J(Nlind):
         self._Nlind__name = name
         
         self.ic = ic
-
-        self.__is_free = True
-        
+        self.is_free = True
+        self.sector = 0
         self.calc_coeffs()
         
     ### CLASS-SPECIFIC PROPERTIES
@@ -351,6 +351,13 @@ class J(Nlind):
         Returns bool flag marking if the J instance is a "free JJ".
         '''
         return(self.__is_free)
+    
+    @property
+    def sector(self):
+        '''
+        Returns bool flag marking if the J instance is a "free JJ".
+        '''
+        return(self.__sector)
     
     @property
     def EJ(self):
@@ -379,6 +386,14 @@ class J(Nlind):
     @is_free.setter
     def is_free(self, value):
         self.__is_free = value
+        
+    @sector.setter
+    def sector(self, value):
+        self.__sector = value
+        self.calc_phase()
+        self.calc_coeffs()
+        if self.observer is not None:
+            self.observer.update()
 
     ### CLASS-SPECIFIC METHODS, OVERRIDE Nlind ONES
 
@@ -396,8 +411,11 @@ class J(Nlind):
         current flowing through it. Implicitly assumes that the JJ is
         constrained.
         '''
-        self._Nlind__phi = arcsin(self.i / self.ic)
- 
+        logging.debug('called calc_phase method of JJ ' + self.name)
+        if not self.is_free:
+            self._Nlind__phi = pi * self.sector + (-1) ** self.sector \
+                * arcsin(self.i / self.ic)
+                                                    
     def calc_potential(self):
         '''
         Computes the potential energy of the J instance as a function of the 

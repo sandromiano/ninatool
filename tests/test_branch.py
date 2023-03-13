@@ -12,7 +12,7 @@ L1 = L(1, order = order, name = 'L1')
 J2 = J(0.01, order = order, name = 'J2')
 ### DEFINES BRANCH B0 ###
 B0 = branch(
-    elements = [J0, L0], 
+    elements = [J0, J1, L0], 
     name = 'branch')
 #%%
 ninaGUI(B0)

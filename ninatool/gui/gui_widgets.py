@@ -13,6 +13,8 @@ from .led_indicator import LedIndicator
 #Format string for SI units
 format_string = '{:.3g}'
 
+ENABLE_SECTORS = False
+
 class updated_signal(QObject):
     
     updated = pyqtSignal()
@@ -44,29 +46,49 @@ class elementWidget(QWidget):
         elif self.element.kind == 'L':
             parString = '.L0'
             elementSpinBox.setValue(self.element.L0)
+
         if self.element.kind =='C':
             parString = '.C'
             elementSpinBox.setValue(self.element.C)
             
         elementLabel = QLabel(self.element.name + parString)
         
-        elementSpinBox.valueChanged.connect(self.update)
+        elementSpinBox.valueChanged.connect(self.updateValue)
         
         Box = QVBoxLayout()
         Box.addWidget(elementLabel)
         Box.addWidget(elementSpinBox)
+
         
         if self.element.kind =='J':
             self.isFreeLabel = QLabel('free')
+            self.isFreeLabel.setStyleSheet('font-size: 12px')
+            
+            self.sectorSpinBox = QSpinBox()
+            self.sectorSpinBox.setMaximumWidth(100)
+            self.sectorSpinBox.setMinimum(-1)
+            self.sectorSpinBox.setMaximum(1)
+            self.sectorSpinBox.setValue(0)
+            
+            self.sectorSpinBox.valueChanged.connect(self.updateSector)
+            
             Box.addWidget(self.isFreeLabel)
+            Box.addWidget(self.sectorSpinBox)
         else: #this is a nasty trick to align non JJ boxes... Fix it!!!
             self.isFreeLabel = QLabel('')
             self.isFreeLabel.setStyleSheet('font-size: 12px')
+
+            self.sectorSpinBox = QSpinBox()
+        
             Box.addWidget(self.isFreeLabel)
+            Box.addWidget(self.sectorSpinBox)
+            
+            self.sectorSpinBox.hide()
+            
         
         self.setLayout(Box)
         
-    def update(self, value):
+    def updateValue(self, value):
         
         if self.element.kind == 'J':    
             self.element.ic = value
@@ -76,6 +98,15 @@ class elementWidget(QWidget):
             self.element.C = value
             
         self.signal.updated.emit()
+        
+    def updateSector(self, value):
+        if ENABLE_SECTORS:
+            self.element.sector = value
+                
+            self.signal.updated.emit()
+        else:
+            pass
+
             
     def updateFreeIndicator(self):
         if self.element.kind =='J':
@@ -83,10 +114,16 @@ class elementWidget(QWidget):
                 self.isFreeLabel.setStyleSheet('color : green; \
                                                font-weight: bold; \
                                                font-size: 12px')
+                self.sectorSpinBox.hide()
             else:
                 self.isFreeLabel.setStyleSheet('color : lightgray; \
                                                font-weight: bold; \
                                                font-size: 12px')
+                                               
+                if ENABLE_SECTORS:
+                    self.sectorSpinBox.show()
+                else:
+                    self.sectorSpinBox.hide()
 
 class freePhiWidget(QWidget):
 
