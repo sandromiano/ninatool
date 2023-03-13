@@ -14,6 +14,6 @@ dcsquid = loop(
     right_branch = [J1, L1], 
     name = 'dcsquid', 
     observe_elements=True, 
-    stray_inductance = False)
+    stray_inductance = True)
 
 ninaGUI(dcsquid)

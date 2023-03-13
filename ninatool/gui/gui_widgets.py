@@ -197,7 +197,12 @@ class plotWidget(QWidget):
         self.graphWidget.setBackground('k')
 
         pen = pg.mkPen(color=(0, 255, 150), width= 2)
-        self.plot = self.graphWidget.plot(pen = pen)
+        
+        self.plot = self.graphWidget.plot(
+            pen = pen, 
+            symbol = None, 
+            symbolsize = 1)
+        
         l = pg.GraphicsLayout()
         l.layout.setContentsMargins(0, 0, 0, 0)
 

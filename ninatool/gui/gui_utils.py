@@ -21,6 +21,18 @@ def loop_right_adm(loop, index, unitsWidget):
         scale_factor = 1
     return(loop.right_adm[index] * scale_factor)
 
+def loop_left_phi(loop):
+    #checks plot units selection
+    return(loop.left_phi)
+
+def loop_right_phi(loop):
+    #checks plot units selection
+    return(loop.right_phi)
+
+def loop_phi(loop):
+    #checks plot units selection
+    return(loop.phi)
+
 def element_adm(element, index, unitsWidget):
     #checks plot units selection
     if unitsWidget.plotUnitsCombo.currentText() == 'SI':
@@ -138,6 +150,9 @@ def load_loop(gui, loop):
     axisName = loop.name
     for axisBox in [gui.xaxisWidget.Combo, gui.yaxisWidget.Combo]:
         axisBox.addItem(axisName + '.flux')
+        axisBox.addItem(axisName + '.left_phi')
+        axisBox.addItem(axisName + '.right_phi')
+        axisBox.addItem(axisName + '.phi')
         
         for i in range(loop.order):
             axisBox.addItem(axisName + '.u' + str(i + 2))
@@ -145,10 +160,27 @@ def load_loop(gui, loop):
     gui.axesDict[axisName + '.flux'] = partial(element_flux, loop)
     gui.axesUnitsDict[axisName + '.flux'] = 'rad'
     
+    gui.axesDict[axisName + '.left_phi'] = partial(loop_left_phi, loop)
+    gui.axesUnitsDict[axisName + '.left_phi'] = 'rad'
+    
+    gui.axesDict[axisName + '.right_phi'] = partial(loop_right_phi, loop)
+    gui.axesUnitsDict[axisName + '.right_phi'] = 'rad'
+    
+    gui.axesDict[axisName + '.phi'] = partial(loop_phi, loop)
+    gui.axesUnitsDict[axisName + '.phi'] = 'rad'
+    
     for i in range(loop.order):
         gui.axesDict[axisName + '.u' + str(i + 2)] = \
             partial(element_adm, loop, i, unitsWidget)
         gui.axesUnitsDict[axisName + '.u' + str(i + 2)] = 'Hz'
+        
+        gui.axesDict[axisName + '.left_branch.u' + str(i + 2)] = \
+            partial(loop_left_adm, loop, i, unitsWidget)
+        gui.axesUnitsDict[axisName + '.left_branch.u' + str(i + 2)] = 'Hz'
+        
+        gui.axesDict[axisName + '.right_branch.u' + str(i + 2)] = \
+            partial(loop_right_adm, loop, i, unitsWidget)
+        gui.axesUnitsDict[axisName + '.right_branch.u' + str(i + 2)] = 'Hz'
     
     #loaded here to first list the loop quantities in axes combo
     load_branch(gui, loop.associated_branch)

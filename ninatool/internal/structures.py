@@ -484,6 +484,18 @@ class loop(Nlind):
             adm = self.series_combination(self.free_element.adm, constrained_adm)
             return(adm)
         
+    @property
+    def left_phi(self):
+        return(sum(- elem.phi for elem in self.left_elements))
+    
+    @property
+    def right_phi(self):
+        return(sum(elem.phi for elem in self.right_elements))
+    
+    @property
+    def phi(self):
+        return((self.left_phi + self.right_phi)/2)
+        
     ### LOOP-SPECIFIC SETTERS ###
 
     @free_phi.setter
