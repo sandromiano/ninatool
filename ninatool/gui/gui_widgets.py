@@ -326,7 +326,7 @@ class unitsWidget(QWidget):
         label = QLabel('Plot units')
         self.plotUnitsCombo = QComboBox()
         self.plotUnitsCombo.setMaximumWidth(130)
-        self.plotUnitsCombo.addItems(['SI', 'NINA UNITS'])
+        self.plotUnitsCombo.addItems(['SI UNITS', 'NINA UNITS'])
         PlotUnitsBox = QVBoxLayout()
         PlotUnitsBox.addWidget(label)
         PlotUnitsBox.addWidget(self.plotUnitsCombo)
