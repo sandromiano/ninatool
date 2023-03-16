@@ -7,7 +7,7 @@ def findComboBoxIndex(ComboBox, text):
 
 def loop_left_adm(loop, index, unitsWidget):
     #checks plot units selection
-    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI UNITS':
         scale_factor = unitsWidget.frequency_units
     elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
@@ -15,7 +15,7 @@ def loop_left_adm(loop, index, unitsWidget):
 
 def loop_right_adm(loop, index, unitsWidget):
     #checks plot units selection
-    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI UNITS':
         scale_factor = unitsWidget.frequency_units
     elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
@@ -35,7 +35,7 @@ def loop_phi(loop):
 
 def element_adm(element, index, unitsWidget):
     #checks plot units selection
-    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI UNITS':
         scale_factor = unitsWidget.frequency_units
     elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
@@ -43,7 +43,7 @@ def element_adm(element, index, unitsWidget):
 
 def nlosc_gn(nlosc, index, unitsWidget):
     #checks plot units selection
-    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI UNITS':
         scale_factor = unitsWidget.frequency_units
     elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
@@ -54,7 +54,7 @@ def element_phi(element):
 
 def element_i(element, unitsWidget):
     #checks plot units selection
-    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI UNITS':
         scale_factor = unitsWidget.current_units
     elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
@@ -62,7 +62,7 @@ def element_i(element, unitsWidget):
 
 def element_U(element, unitsWidget):
     #checks plot units selection
-    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI UNITS':
         scale_factor = unitsWidget.frequency_units
     elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1
@@ -79,7 +79,7 @@ def nlosc_nZPF(nlosc):
 
 def nlosc_omega(nlosc, unitsWidget):
     #checks plot units selection
-    if unitsWidget.plotUnitsCombo.currentText() == 'SI':
+    if unitsWidget.plotUnitsCombo.currentText() == 'SI UNITS':
         scale_factor = unitsWidget.frequency_units
     elif unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
         scale_factor = 1

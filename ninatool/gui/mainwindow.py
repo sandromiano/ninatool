@@ -140,7 +140,7 @@ class mainwindow(QMainWindow):
         
         self.multivaluedWidget.Led.setChecked(self.structure.multivalued)
         
-        if self.unitsWidget.plotUnitsCombo.currentText() == 'SI':
+        if self.unitsWidget.plotUnitsCombo.currentText() == 'SI UNITS':
             xunits = self.axesUnitsDict[self.XAxisSelection]
             yunits = self.axesUnitsDict[self.YAxisSelection]
         elif self.unitsWidget.plotUnitsCombo.currentText() == 'NINA UNITS':
