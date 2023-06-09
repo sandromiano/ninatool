@@ -1,6 +1,7 @@
 import logging
 from sympy import symbols, diff
 from sympy import cos as sp_cos
+from sympy import sin as sp_sin
 from numpy import array, ndarray, sin, cos, arcsin, pi, sqrt, linspace, \
                   where, interp
 from .support_functions import invert_representation_partial, \
@@ -393,10 +394,11 @@ class J(Nlind):
     @sector.setter
     def sector(self, value):
         self.__sector = value
-        self.calc_phase()
-        self.calc_coeffs()
-        if self.observer is not None:
-            self.observer.update()
+        if not self.is_free:
+            self.calc_phase()
+            self.calc_coeffs()
+            if self.observer is not None:
+                self.observer.update()
 
     ### CLASS-SPECIFIC METHODS, OVERRIDE Nlind ONES
 
@@ -506,7 +508,7 @@ class NW(Nlind):
         self.__tau = tau
         self.is_free = True
         self.calc_ic()
-        # self.sector = 0
+        self.sector = 0
         # self.calc_coeffs()
         
     ### CLASS-SPECIFIC PROPERTIES
@@ -548,17 +550,10 @@ class NW(Nlind):
         reaches the positive critical current in sector 0.
         '''
         return(self.__phic)
+    
     @delta.setter
     def delta(self, delta):
         self.__delta = delta
-    
-    @Nlind.i.setter
-    def i(self, i):
-        logging.debug('called "i.setter" method of NW class.')
-        self.calc_phase(i = i)
-        self.calc_potential()
-        self.calc_inductance()
-        self.calc_coeffs()
     
     @tau.setter
     def tau(self, tau):
@@ -579,26 +574,11 @@ class NW(Nlind):
     @sector.setter
     def sector(self, value):
         self.__sector = value
-        self.calc_phase()
-        self.calc_coeffs()
-        if self.observer is not None:
-            self.observer.update()
-            
-    @Nlind.phi.setter
-    def phi(self, phi):
-        
-        if not isinstance(phi, ndarray):
-            if check_real_number(phi):
-                phi = array([phi])
-            else:
-                raise ValueError("Cannot set " + self.name + ".phi. Value " +\
-                                 "needs to be either an array or real number.")
-        
-        self._Nlind__phi = phi
-        self.calc_current()
-        self.calc_potential()
-        self.calc_inductance()
-        
+        if not self.is_free:
+            self.calc_phase()
+            self.calc_coeffs()
+            if self.observer is not None:
+                self.observer.update()
 
     ### CLASS-SPECIFIC METHODS, OVERRIDE Nlind ONES
 
@@ -607,7 +587,8 @@ class NW(Nlind):
         Computes the current flowing through the NW instance as a function of 
         the phase drop across it.
         '''
-        self._Nlind__i = self.delta * self.tau * sin(self.phi)/(4*sqrt(1-self.tau*sin(self.phi/2)**2))
+        self._Nlind__i = self.delta * self.tau * sin(self.phi)/ \
+            (4 * sqrt(1 - self.tau * sin(self.phi / 2) ** 2))
         
     def calc_ic(self):
         '''
@@ -615,13 +596,19 @@ class NW(Nlind):
         the maximum.
         '''
         logging.debug('called calc_ic method of NW ' + self.name)
+        #remembers if it was a free element (not sure if required, have to check)
+        was_free = self.is_free
+        #forces to be free
+        self.is_free = True
         phi_old = self.phi
         self.phi = linspace(-.5, .5, 1001) * 2 * pi
         self._Nlind__ic = self.i.max()
+        #defines critical phase
         self.__phic = self.phi[where(self.i == self.ic)[0][0]]
+        self.is_free = was_free
         self.phi = phi_old
         
-    def calc_phase(self, i):
+    def calc_phase(self):
         '''
         Computes the phase drop across the NW instance as a function of the
         current flowing through it. Implicitly assumes that the NW is
@@ -629,9 +616,22 @@ class NW(Nlind):
         '''
         logging.debug('called calc_phase method of NW ' + self.name)
         if not self.is_free:
-            phi_0 = linspace(-self.phic, self.phic, 1001)
-            self.phi = phi_0
-            phi_grid = interp(i, self.i, self.phi)
+            #given the sector, finds center and width of the phase interval
+            #to invert CPR. Also computes the slope sign around the sector,
+            #as the np.interp function wants monotonic increasing functions.
+            center = self.sector * pi
+            width = self.sector % 2 * (2 * pi - 4 * self.phic) + 2 * self.phic
+            slope_sign = (0.5 - self.sector % 2) * 2
+            #temporary stores the current current array (sorry...) 
+            #to interpolate on. This is necessary as the next call to
+            #self.phi setter overwrites self.i
+            current_i = self.i
+            #sets the phase interval to invert CPR
+            self.phi = linspace(-width/2, width/2, 1001) + center 
+            #phase grid obtained by interpolating on the current array.
+            #slope sign makes the function to interpolate with positive
+            #slope as required by the np.interp function.
+            phi_grid = interp(current_i,  slope_sign * self.i, self.phi)
             self.phi = phi_grid
                                                     
     def calc_potential(self):
@@ -647,24 +647,31 @@ class NW(Nlind):
         a function of the phase drop across it.
         '''
         
-        #self._Nlind__L = diff(self._Nlind__i,self.phi)
-        self._Nlind__L = 1/(self.delta * self.tau *( self.tau * sin(self.phi/2)**4 \
-            - sin(self.phi/2)**2 + cos(self.phi/2)**2) / (4 * ( 1 - self.tau * sin(self.phi/2)**2) ** (3/2)))
+        self._Nlind__L = 1/(self.delta * self.tau * \
+            (self.tau * sin(self.phi/2) ** 4 - sin(self.phi/2) ** 2 + \
+             cos(self.phi/2) ** 2) / (4 * (1 - self.tau * \
+            sin(self.phi/2) ** 2) ** (3/2)))
 
     def calc_coeffs(self):
         '''
-        Computes potential energy expansion coefficients of the J instance
+        Computes potential energy expansion coefficients of the NW instance
         for all the values of the phase drop across it.
         '''
         phi = symbols('phi', real = True)
-        adm_list = [self.ic * sp_cos(phi)]
+        
+        u2 = self.delta * self.tau * (self.tau * sp_sin(phi/2) ** 4 - \
+            sp_sin(phi/2) ** 2 + sp_cos(phi/2) ** 2) / \
+            (4 * ( 1 - self.tau * sp_sin(phi/2) ** 2) ** (3/2))
+                                                         
+        adm_list = [u2]
 
         for i in range(self.order - 1):
             adm_list.append(diff(adm_list[-1], phi))
         
         keys = {'phi' : self.phi, 'cos' : cos, 'sin' : sin}
         self.adm = [eval(str(adm_list[i]), keys) for i in range(self.order)]
+        pass
 
-    ### END OF 'J' CLASS ###
+    ### END OF 'NW' CLASS ###
         
         
