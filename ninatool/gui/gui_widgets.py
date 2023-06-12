@@ -13,7 +13,7 @@ from .led_indicator import LedIndicator
 #Format string for SI units
 format_string = '{:.3g}'
 
-ENABLE_SECTORS = False
+ENABLE_SECTORS = True
 
 class updated_signal(QObject):
     

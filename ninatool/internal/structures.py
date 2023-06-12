@@ -213,7 +213,7 @@ class branch(Nlind):
         logging.debug('called parse method of branch ' + str(self.name))
         #zero bias linear inductance of the branch
         #list of all the JJs in the branch
-        self.__JJs = [elem for elem in self.elements if elem.kind == 'J']
+        self.__JJs = [elem for elem in self.elements if elem.kind == 'J' or elem.kind == 'NW']
         #if the branch does not have JJs, it is assumed to be linear.
         #this will have to change when more nonlinear elements will be
         #allowed in the branch class.
@@ -248,7 +248,7 @@ class branch(Nlind):
                 list(set(self.elements) - set([self.free_element]))
             #labels constrained JJs as not free
             for element in self.constrained_elements:
-                if element.kind == 'J':
+                if element.kind == 'J' or element.kind == 'NW':
                     element.is_free = False
                     
             if self.__is_free:

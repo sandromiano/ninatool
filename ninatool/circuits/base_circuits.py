@@ -8,7 +8,8 @@ class rfsquid(loop):
                  L0 = .1,
                  L1 = .5,
                  order = 3,
-                 name = 'rfsquid'):
+                 name = 'rfsquid',
+                 **kwargs):
         
         self.J0 = J(i0, order = order, name = 'J0')
         self.L0 = L(L0, order = order, name = 'L0')
@@ -19,7 +20,8 @@ class rfsquid(loop):
         
         super().__init__(left_branch = left_branch,
                          right_branch = right_branch,
-                         name = name)
+                         name = name,
+                         **kwargs)
         
 class dcsquid(loop):
     
@@ -48,7 +50,8 @@ class snail(loop):
     def __init__(self,
                  a = .2,
                  order = 3,
-                 name = 'snail'):
+                 name = 'snail',
+                 **kwargs):
         
         self.J0 = J(a, order = order, name = 'J0')
         self.J1 = J(1, order = order, name = 'J1')
@@ -61,4 +64,5 @@ class snail(loop):
         
         super().__init__(left_branch = left_branch,
                          right_branch = right_branch,
-                         name = name)
+                         name = name,
+                         **kwargs)
