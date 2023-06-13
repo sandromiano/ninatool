@@ -609,12 +609,12 @@ class Nlosc:
     
     @property
     def omega(self):
-        #missing hbar at denominator
+        #hbar = 1
         return(sqrt(8 * self.EC * self.nlind.adm[0]))
     
     @property
     def gn(self):
-        #missing hbar at denominator
+        #hbar = 1
         power_array = array([i + 3 for i in range(self.nlind.order -1)])
         
         power_array = power_array.reshape(self.nlind.order -1, 1)
