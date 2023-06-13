@@ -17,4 +17,4 @@ dcsquid = loop(
     name = 'dcsquid', 
     observe_elements=True, 
     stray_inductance = True)#%%
-plt.plot(dcsquid.flux, dcsquid.adm[J2])
+plt.plot(dcsquid.flux, dcsquid.adm[0])
