@@ -135,8 +135,8 @@ class branch(Nlind):
         return(self.__multivalued)
     
     @property
-    def JJs(self):
-        return(self.__JJs)
+    def NLINDs(self):
+        return(self.__NLINDs)
     
     @property
     def constrained_elements(self):
@@ -213,11 +213,15 @@ class branch(Nlind):
         logging.debug('called parse method of branch ' + str(self.name))
         #zero bias linear inductance of the branch
         #list of all the JJs in the branch
-        self.__JJs = [elem for elem in self.elements if elem.kind == 'J']
+
+        self.__NLINDs = [elem for elem in self.elements 
+                      if elem.kind == 'J' 
+                      or elem.kind == 'NW']
+
         #if the branch does not have JJs, it is assumed to be linear.
         #this will have to change when more nonlinear elements will be
         #allowed in the branch class.
-        if len(self.JJs) == 0:
+        if len(self.NLINDs) == 0:
             self.__is_linear = True
             self.__constrained_elements = self.elements
             #in linear case, the free element is defined as an effective
@@ -227,16 +231,17 @@ class branch(Nlind):
         else:
             self.__is_linear = False
             #defines critical current of the branch
-            self._Nlind__ic = min(JJ.ic for JJ in self.JJs)
+            self._Nlind__ic = min(NLIND.ic for NLIND in self.NLINDs)
             
             if self.__is_free:
                 #list of possible free JJs
-                free_JJs = [JJ for JJ in self.JJs if JJ.ic == self.ic]
+                free_NLINDs = [NLIND for NLIND in self.NLINDs 
+                               if NLIND.ic == self.ic]
                 #if multiple free JJs, only one will be picked
-                if len(free_JJs) > 1:
+                if len(free_NLINDs) > 1:
                     logging.info("More than one free JJ present. " + 
                     "Only one of them will be allowed to actually be free.")
-                self.__free_element = free_JJs[0]
+                self.__free_element = free_NLINDs[0]
                 self.__free_element.is_free = True
                 logging.info(self.free_element.name + ' is free element of ' + 
                              'branch ' + self.name)
@@ -248,7 +253,8 @@ class branch(Nlind):
                 list(set(self.elements) - set([self.free_element]))
             #labels constrained JJs as not free
             for element in self.constrained_elements:
-                if element.kind == 'J':
+                if element.kind == 'J' \
+                or element.kind == 'NW':
                     element.is_free = False
                     
             if self.__is_free:

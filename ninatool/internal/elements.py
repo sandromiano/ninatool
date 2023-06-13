@@ -99,8 +99,6 @@ class Nlind(object) :
         '''
         return(self.__observed)
     
-    
-
     @property
     def phi(self):
         '''
@@ -188,24 +186,18 @@ class Nlind(object) :
         self.calc_potential()
         self.calc_inductance()
         self.calc_coeffs()
-
+        
     @ic.setter
     def ic(self, value):
         self._Nlind__ic = value
         self._Nlind__L0 = 1/value
-        self.calc_coeffs()
-        #updates observer if any
-        if self.observer is not None:
-            self.observer.update()
-        
+        self.update()
+    
     @L0.setter
     def L0(self, value):
         self._Nlind__L0 = value
         self._Nlind__ic = 1/value
-        self.calc_coeffs()
-        #updates observer if any
-        if self.observer is not None:
-            self.observer.update()
+        self.update()
 
     @adm.setter
     def adm(self, adm):
@@ -221,6 +213,15 @@ class Nlind(object) :
     
     def add_observed(self, observed):
         self.__observed.append(observed)
+        
+    def update(self):
+        if self.observer is None:
+            self.calc_potential()
+            self.calc_current()
+            self.calc_inductance()
+            self.calc_coeffs()
+        else:
+            self.observer.update()
         
     ### CHILD-SPECIFIC METHODS, TO BE OVERRIDEN BY THE DERIVED CLASSES
 
@@ -430,7 +431,7 @@ class J(Nlind):
 
 class NW(Nlind):
     '''
-    Class of nanowire weak link (nw).
+    Class of nanowire weak link (NW).
     '''
     def __init__(self, 
                  delta,
@@ -440,12 +441,14 @@ class NW(Nlind):
         '''
         Parameters
         ----------
-        ic : FLOAT
-            JJ critical current in dimensionless NINA current units.
+        delta : FLOAT
+            delta of a weak link
+        tau : FLOAT
+            transparency of the weak link
         order : TYPE, optional
             Maximum order for potential energy expansion coefficients.
         name : STR, optional
-            Name of J instance.
+            Name of NW instance.
         '''
         super().__init__(order = order)
 
