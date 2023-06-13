@@ -1,18 +1,16 @@
-from ninatool.internal.elements import L, J
+from ninatool.internal.elements import L, J, NW
 from ninatool.internal.structures import branch
 from ninatool.gui.mainwindow import ninaGUI
+import matplotlib.pyplot as plt
+
 
 order = 2
 
 ### DEFINES ELEMENTS ###
-J0 = J(1, order = order, name = 'J0')
-J1 = J(.1, order = order, name = 'J1')
-L0 = L(1, order = order, name = 'L0')
-L1 = L(1, order = order, name = 'L1')
-J2 = J(0.01, order = order, name = 'J2')
+NW0 = NW(delta = 0.8, tau = 0.9, order = order, name = 'NW0')
+L0 = L(0.1, order = order, name = 'L0')
 ### DEFINES BRANCH B0 ###
 B0 = branch(
-    elements = [J0, J1, L0], 
+    elements = [NW0, L0], 
     name = 'branch')
-#%%
-ninaGUI(B0)
+plt.plot(B0.phi, B0.i)

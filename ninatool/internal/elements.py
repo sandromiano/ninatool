@@ -98,6 +98,8 @@ class Nlind(object) :
         Returns a list of nlind instances observed by self. Useful for debug.
         '''
         return(self.__observed)
+    
+    
 
     @property
     def phi(self):
@@ -188,13 +190,22 @@ class Nlind(object) :
         self.calc_coeffs()
 
     @ic.setter
-    def ic(self, ic):
-        self.__ic = ic
-    
+    def ic(self, value):
+        self._Nlind__ic = value
+        self._Nlind__L0 = 1/value
+        self.calc_coeffs()
+        #updates observer if any
+        if self.observer is not None:
+            self.observer.update()
         
     @L0.setter
-    def L0(self, L0):
-        self.__L0 = L0
+    def L0(self, value):
+        self._Nlind__L0 = value
+        self._Nlind__ic = 1/value
+        self.calc_coeffs()
+        #updates observer if any
+        if self.observer is not None:
+            self.observer.update()
 
     @adm.setter
     def adm(self, adm):
@@ -262,24 +273,8 @@ class L(Nlind):
         return(1/self.L0)
     
     ### CLASS-SPECIFIC SETTERS, OVERRIDE Nlind ONES    
-    
-    @Nlind.ic.setter
-    def ic(self, value):
-        self._Nlind__ic = value
-        self._Nlind__L0 = 1/value
-        self.calc_coeffs()
-        #updates observer if any
-        if self.observer is not None:
-            self.observer.update()
-        
-    @Nlind.L0.setter
-    def L0(self, value):
-        self._Nlind__L0 = value
-        self._Nlind__ic = 1/value
-        self.calc_coeffs()
-        #updates observer if any
-        if self.observer is not None:
-            self.observer.update()
+
+    ### NONE ###    
 
     ### CLASS-SPECIFIC METHODS, OVERRIDE Nlind ONES
 
@@ -368,24 +363,6 @@ class J(Nlind):
         return(self.ic)
 
     ### CLASS-SPECIFIC SETTERS, 'ic' and 'L0' OVERRIDE Nlind ONES
-
-    @Nlind.ic.setter
-    def ic(self, value):
-        self._Nlind__ic = value
-        self._Nlind__L0 = 1/value
-        self.calc_coeffs()
-        #updates observer if any
-        if self.observer is not None:
-            self.observer.update()
-        
-    @Nlind.L0.setter
-    def L0(self, value):
-        self._Nlind__L0 = value
-        self._Nlind__ic = 1/value
-        self.calc_coeffs()
-        #updates observer if any
-        if self.observer is not None:
-            self.observer.update()
             
     @is_free.setter
     def is_free(self, value):
@@ -450,35 +427,6 @@ class J(Nlind):
         self.adm = [eval(str(adm_list[i]), keys) for i in range(self.order)]
 
     ### END OF 'J' CLASS ###
-    
-class C(object):
-    
-    def __init__(self, name = ''):
-        
-        self.__kind = 'C'
-        self.__name = name
-        self.__C = 1
-    
-    @property
-    def kind(self):
-        return(self.__kind)
-    
-    @property
-    def name(self):
-        return(self.__name)
-    
-    @property
-    def C(self):
-        return(self.__C)
-    
-    @property
-    def EC(self):
-        return(1/self.C)
-    
-    @C.setter
-    def C(self, value):
-        self.__C = value
-        
 
 class NW(Nlind):
     '''
@@ -509,7 +457,7 @@ class NW(Nlind):
         self.is_free = True
         self.calc_ic()
         self.sector = 0
-        # self.calc_coeffs()
+        self.calc_coeffs()
         
     ### CLASS-SPECIFIC PROPERTIES
 
@@ -550,7 +498,7 @@ class NW(Nlind):
         reaches the positive critical current in sector 0.
         '''
         return(self.__phic)
-    
+
     @delta.setter
     def delta(self, delta):
         self.__delta = delta
@@ -558,14 +506,6 @@ class NW(Nlind):
     @tau.setter
     def tau(self, tau):
         self.__tau = tau
-
-    @Nlind.ic.setter
-    def ic(self, value):
-        pass
-        
-    @Nlind.L0.setter
-    def L0(self, value):
-        pass
             
     @is_free.setter
     def is_free(self, value):
@@ -602,7 +542,7 @@ class NW(Nlind):
         self.is_free = True
         phi_old = self.phi
         self.phi = linspace(-.5, .5, 1001) * 2 * pi
-        self._Nlind__ic = self.i.max()
+        self.ic = self.i.max()
         #defines critical phase
         self.__phic = self.phi[where(self.i == self.ic)[0][0]]
         self.is_free = was_free
@@ -673,5 +613,33 @@ class NW(Nlind):
         pass
 
     ### END OF 'NW' CLASS ###
+
+class C(object):
+    
+    def __init__(self, name = ''):
         
+        self.__kind = 'C'
+        self.__name = name
+        self.__C = 1
+    
+    @property
+    def kind(self):
+        return(self.__kind)
+    
+    @property
+    def name(self):
+        return(self.__name)
+    
+    @property
+    def C(self):
+        return(self.__C)
+    
+    @property
+    def EC(self):
+        return(1/self.C)
+    
+    @C.setter
+    def C(self, value):
+        self.__C = value
         
+    ### END OF 'C' CLASS ###
