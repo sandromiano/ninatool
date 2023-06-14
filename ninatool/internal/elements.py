@@ -505,10 +505,12 @@ class NW(Nlind):
     @delta.setter
     def delta(self, delta):
         self.__delta = delta
+        self.update()
     
     @tau.setter
     def tau(self, tau):
         self.__tau = tau
+        self.update()
             
     @is_free.setter
     def is_free(self, value):

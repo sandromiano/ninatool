@@ -273,14 +273,17 @@ class branch(Nlind):
         logging.debug('called check_multivalued method of branch '
                       + str(self.name))
         
-        self.__constrained_L0 = \
-            sum(other.L0 for other in self.__constrained_elements)
-        
-        self.__beta = self.__constrained_L0 / self.free_element.L0
-        
-        if self.beta > 1 and self.__is_free:
-            logging.info('Branch ' + str(self.name) + ' is multivalued.')
-            self.__multivalued = True
+        if self.is_free:
+            free_phi = self.free_phi
+            self.free_phi = linspace(0, pi, 1001)
+            max_phi = max(self.phi)
+            
+            if max_phi > pi:
+                self.__multivalued = True
+            else:
+                self.__multivalued = False
+            self.free_phi = free_phi
+            
         else:
             self.__multivalued = False
 
