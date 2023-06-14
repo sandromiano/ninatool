@@ -18,3 +18,5 @@ plt.plot(B0.phi, B0.i, label = 'multistable = ' + str(B0.multivalued))
 NW0.delta = 0.1
 plt.plot(B0.phi, B0.i, label = 'multistable = ' + str(B0.multivalued))
 plt.legend()
+plt.xlabel(r'$\varphi$')
+plt.ylabel(r'$i$')
