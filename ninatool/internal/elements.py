@@ -47,9 +47,8 @@ class Nlind(object) :
         self.__L = 0
         
         self.__ic = 0
-        self.__L0 = 0 
-
-
+        self.__L0 = 0
+        
         self.__adm = None
         self.__imp = None
 
@@ -221,6 +220,7 @@ class Nlind(object) :
             self.calc_inductance()
             self.calc_coeffs()
         else:
+            self.calc_coeffs()
             self.observer.update()
         
     ### CHILD-SPECIFIC METHODS, TO BE OVERRIDEN BY THE DERIVED CLASSES
