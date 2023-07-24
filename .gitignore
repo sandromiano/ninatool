@@ -7,3 +7,4 @@ deploy_test/
 ninatool/__pycache__/
 index.html
 examples/.ipynb_checkpoints/
+tests/test_spa.py
