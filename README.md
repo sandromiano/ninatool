@@ -84,6 +84,6 @@ If you use NINA for your research, be a good citizen and cite [**this article**]
 
 For inquiries, comments, suggestions etc. you can contact the authors at **superconducting.nina@gmail.com**.
 
-# acknowledgemts
+# acknowledgements
 
 NINA uses some GUI widgets from [pyqt-labutils](https://github.com/OE-FET/pyqt-labutils) repo.
