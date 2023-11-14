@@ -9,7 +9,17 @@ cmap = plt.get_cmap('tab10')
 
 plt.style.use('paper_1col')
 
-spa = Nlosc(nlind = snail(a = .06, stray_inductance=True), name = 'SPA')
+spa = Nlosc(nlind = snail(a = 1, stray_inductance=True, order = 5), name = 'SPA')
+spa.nlind.Ls = 100
+spa.nlind.J2.ic = 0.2
+spa.C = 10000
+spa.nlind.interpolate_results(np.linspace(0.45,0.5,101) * 2 * np.pi)
+#%%
+plt.plot(spa.nlind.flux/2/np.pi,spa.gn[0])
+plt.plot(spa.nlind.flux/2/np.pi, spa.gn[2])
+ #%%
+ninaGUI(spa)
+#%%
 
 unitsHandler = unitsConverter()
 unitsHandler.current_units = 6e-9
