@@ -31,7 +31,8 @@ class dcsquid(loop):
                  i1 = .9,
                  L1 = .5,
                  order = 3,
-                 name = 'dcsquid'):
+                 name = 'dcsquid',
+                 **kwargs):
         
         self.J0 = J(i0, order = order, name = 'J0')
         self.L0 = L(L0, order = order, name = 'L0')
@@ -43,7 +44,8 @@ class dcsquid(loop):
         
         super().__init__(left_branch = left_branch,
                          right_branch = right_branch,
-                         name = name)
+                         name = name,
+                         **kwargs)
         
 class snail(loop):
     

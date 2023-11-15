@@ -8,7 +8,7 @@ import numpy as np
 plt.style.use('paper_1col')
 #%%
 #NONLINEAR ORDER OF EXPANSION; 1 is LINEAR
-order = 3
+order = 5
 #LEFT BRANCH ELEMENTS
 L0 = L(L = .1, order = order, name = 'L0')
 J0 = J(ic = .1, order = order, name = 'J0')

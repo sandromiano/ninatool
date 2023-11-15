@@ -625,8 +625,9 @@ class Nlosc:
     def gn(self):
         #hbar = 1
         power_array = array([i + 3 for i in range(self.nlind.order -1)])
+
         
-        power_array = power_array.reshape(self.nlind.order -1, 1)
+        power_array = power_array.reshape(self.nlind.order - 1, 1)
         
         factorial_array = array([factorial(i + 3) 
                                     for i in range(self.nlind.order - 1)])

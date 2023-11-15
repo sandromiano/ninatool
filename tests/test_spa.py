@@ -54,4 +54,5 @@ ax[2].set_yticks([-60,-30,0,30])
 
 plt.tight_layout()
 
-
+spa = Nlosc(nlind = snail(order = 5, stray_inductance = True), name = 'SPA')
+ninaGUI(spa)
