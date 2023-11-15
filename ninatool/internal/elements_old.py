@@ -1,9 +1,7 @@
 import logging
 from sympy import symbols, diff
 from sympy import cos as sp_cos
-from sympy import sin as sp_sin
-from numpy import array, ndarray, sin, cos, arcsin, pi, sqrt, linspace, \
-                  where, interp
+from numpy import array, ndarray, sin, cos, arcsin, pi
 from .support_functions import invert_representation_partial, \
                                series_combination_partial
 
@@ -47,8 +45,8 @@ class Nlind(object) :
         self.__L = 0
         
         self.__ic = 0
-        self.__L0 = 0
-        
+        self.__L0 = 0 
+
         self.__adm = None
         self.__imp = None
 
@@ -97,7 +95,7 @@ class Nlind(object) :
         Returns a list of nlind instances observed by self. Useful for debug.
         '''
         return(self.__observed)
-    
+
     @property
     def phi(self):
         '''
@@ -185,18 +183,14 @@ class Nlind(object) :
         self.calc_potential()
         self.calc_inductance()
         self.calc_coeffs()
-        
+
     @ic.setter
-    def ic(self, value):
-        self._Nlind__ic = value
-        self._Nlind__L0 = 1/value
-        self.update()
-    
+    def ic(self, ic):
+        self.__ic = ic
+        
     @L0.setter
-    def L0(self, value):
-        self._Nlind__L0 = value
-        self._Nlind__ic = 1/value
-        self.update()
+    def L0(self, L0):
+        self.__L0 = L0
 
     @adm.setter
     def adm(self, adm):
@@ -212,16 +206,6 @@ class Nlind(object) :
     
     def add_observed(self, observed):
         self.__observed.append(observed)
-        
-    def update(self):
-        if self.observer is None:
-            self.calc_potential()
-            self.calc_current()
-            self.calc_inductance()
-            self.calc_coeffs()
-        else:
-            self.calc_coeffs()
-            self.observer.update()
         
     ### CHILD-SPECIFIC METHODS, TO BE OVERRIDEN BY THE DERIVED CLASSES
 
@@ -274,8 +258,24 @@ class L(Nlind):
         return(1/self.L0)
     
     ### CLASS-SPECIFIC SETTERS, OVERRIDE Nlind ONES    
-
-    ### NONE ###    
+    
+    @Nlind.ic.setter
+    def ic(self, value):
+        self._Nlind__ic = value
+        self._Nlind__L0 = 1/value
+        self.calc_coeffs()
+        #updates observer if any
+        if self.observer is not None:
+            self.observer.update()
+        
+    @Nlind.L0.setter
+    def L0(self, value):
+        self._Nlind__L0 = value
+        self._Nlind__ic = 1/value
+        self.calc_coeffs()
+        #updates observer if any
+        if self.observer is not None:
+            self.observer.update()
 
     ### CLASS-SPECIFIC METHODS, OVERRIDE Nlind ONES
 
@@ -364,6 +364,24 @@ class J(Nlind):
         return(self.ic)
 
     ### CLASS-SPECIFIC SETTERS, 'ic' and 'L0' OVERRIDE Nlind ONES
+
+    @Nlind.ic.setter
+    def ic(self, value):
+        self._Nlind__ic = value
+        self._Nlind__L0 = 1/value
+        self.calc_coeffs()
+        #updates observer if any
+        if self.observer is not None:
+            self.observer.update()
+        
+    @Nlind.L0.setter
+    def L0(self, value):
+        self._Nlind__L0 = value
+        self._Nlind__ic = 1/value
+        self.calc_coeffs()
+        #updates observer if any
+        if self.observer is not None:
+            self.observer.update()
             
     @is_free.setter
     def is_free(self, value):
@@ -372,11 +390,10 @@ class J(Nlind):
     @sector.setter
     def sector(self, value):
         self.__sector = value
-        if not self.is_free:
-            self.calc_phase()
-            self.calc_coeffs()
-            if self.observer is not None:
-                self.observer.update()
+        self.calc_phase()
+        self.calc_coeffs()
+        if self.observer is not None:
+            self.observer.update()
 
     ### CLASS-SPECIFIC METHODS, OVERRIDE Nlind ONES
 
@@ -428,197 +445,7 @@ class J(Nlind):
         self.adm = [eval(str(adm_list[i]), keys) for i in range(self.order)]
 
     ### END OF 'J' CLASS ###
-
-class NW(Nlind):
-    '''
-    Class of nanowire weak link (NW).
-    '''
-    def __init__(self, 
-                 delta,
-                 tau,
-                 order = 3, 
-                 name = ""):
-        '''
-        Parameters
-        ----------
-        delta : FLOAT
-            delta of a weak link
-        tau : FLOAT
-            transparency of the weak link
-        order : TYPE, optional
-            Maximum order for potential energy expansion coefficients.
-        name : STR, optional
-            Name of NW instance.
-        '''
-        super().__init__(order = order)
-
-        self._Nlind__kind = 'NW'
-        self._Nlind__name = name
-        
-        self.__delta = delta
-        self.__tau = tau
-        self.is_free = True
-        self.calc_ic()
-        self.sector = 0
-        self.calc_coeffs()
-        
-    ### CLASS-SPECIFIC PROPERTIES
-
-    @property
-    def is_free(self):
-        '''
-        Returns bool flag marking if the J instance is a "free JJ".
-        '''
-        return(self.__is_free)
     
-    @property
-    def sector(self):
-        '''
-        Returns bool flag marking if the J instance is a "free JJ".
-        '''
-        return(self.__sector)
-
-    ### CLASS-SPECIFIC SETTERS, 'ic' and 'L0' OVERRIDE Nlind ONES
-    
-    @property
-    def delta(self):
-        '''
-        Returns the gap of self.
-        '''
-        return(self.__delta)
-    
-    @property
-    def tau(self):
-        '''
-        Returns transparency coefficient of self.
-        '''
-        return(self.__tau)
-    
-    @property
-    def phic(self):
-        '''
-        Returns the "critical phase", defined as the phase at which the NW
-        reaches the positive critical current in sector 0.
-        '''
-        return(self.__phic)
-
-    @delta.setter
-    def delta(self, delta):
-        self.__delta = delta
-        self.update()
-    
-    @tau.setter
-    def tau(self, tau):
-        self.__tau = tau
-        self.update()
-            
-    @is_free.setter
-    def is_free(self, value):
-        self.__is_free = value
-        
-    @sector.setter
-    def sector(self, value):
-        self.__sector = value
-        if not self.is_free:
-            self.calc_phase()
-            self.calc_coeffs()
-            if self.observer is not None:
-                self.observer.update()
-
-    ### CLASS-SPECIFIC METHODS, OVERRIDE Nlind ONES
-
-    def calc_current(self):
-        '''
-        Computes the current flowing through the NW instance as a function of 
-        the phase drop across it.
-        '''
-        self._Nlind__i = self.delta * self.tau * sin(self.phi)/ \
-            (4 * sqrt(1 - self.tau * sin(self.phi / 2) ** 2))
-        
-    def calc_ic(self):
-        '''
-        Computes the critical current by sweeping the CPR and extracting 
-        the maximum.
-        '''
-        logging.debug('called calc_ic method of NW ' + self.name)
-        #remembers if it was a free element (not sure if required, have to check)
-        was_free = self.is_free
-        #forces to be free
-        self.is_free = True
-        phi_old = self.phi
-        self.phi = linspace(-.5, .5, 1001) * 2 * pi
-        self.ic = self.i.max()
-        #defines critical phase
-        self.__phic = self.phi[where(self.i == self.ic)[0][0]]
-        self.is_free = was_free
-        self.phi = phi_old
-        
-    def calc_phase(self):
-        '''
-        Computes the phase drop across the NW instance as a function of the
-        current flowing through it. Implicitly assumes that the NW is
-        constrained in the zero sector.
-        '''
-        logging.debug('called calc_phase method of NW ' + self.name)
-        if not self.is_free:
-            #given the sector, finds center and width of the phase interval
-            #to invert CPR. Also computes the slope sign around the sector,
-            #as the np.interp function wants monotonic increasing functions.
-            center = self.sector * pi
-            width = self.sector % 2 * (2 * pi - 4 * self.phic) + 2 * self.phic
-            slope_sign = (0.5 - self.sector % 2) * 2
-            #temporary stores the current current array (sorry...) 
-            #to interpolate on. This is necessary as the next call to
-            #self.phi setter overwrites self.i
-            current_i = self.i
-            #sets the phase interval to invert CPR
-            self.phi = linspace(-width/2, width/2, 1001) + center 
-            #phase grid obtained by interpolating on the current array.
-            #slope sign makes the function to interpolate with positive
-            #slope as required by the np.interp function.
-            phi_grid = interp(current_i,  slope_sign * self.i, self.phi)
-            self.phi = phi_grid
-                                                    
-    def calc_potential(self):
-        '''
-        Computes the potential energy of the NW instance as a function of the 
-        phase drop across it.
-        '''
-        self._Nlind__U = -self.delta * sqrt(1-self.tau*sin(self.phi/2)**2)
-
-    def calc_inductance(self):
-        '''
-        Computes the inductance of the NW instance as
-        a function of the phase drop across it.
-        '''
-        
-        self._Nlind__L = 1/(self.delta * self.tau * \
-            (self.tau * sin(self.phi/2) ** 4 - sin(self.phi/2) ** 2 + \
-             cos(self.phi/2) ** 2) / (4 * (1 - self.tau * \
-            sin(self.phi/2) ** 2) ** (3/2)))
-
-    def calc_coeffs(self):
-        '''
-        Computes potential energy expansion coefficients of the NW instance
-        for all the values of the phase drop across it.
-        '''
-        phi = symbols('phi', real = True)
-        
-        u2 = self.delta * self.tau * (self.tau * sp_sin(phi/2) ** 4 - \
-            sp_sin(phi/2) ** 2 + sp_cos(phi/2) ** 2) / \
-            (4 * ( 1 - self.tau * sp_sin(phi/2) ** 2) ** (3/2))
-                                                         
-        adm_list = [u2]
-
-        for i in range(self.order - 1):
-            adm_list.append(diff(adm_list[-1], phi))
-        
-        keys = {'phi' : self.phi, 'cos' : cos, 'sin' : sin}
-        self.adm = [eval(str(adm_list[i]), keys) for i in range(self.order)]
-        pass
-
-    ### END OF 'NW' CLASS ###
-
 class C(object):
     
     def __init__(self, name = ''):
@@ -647,4 +474,4 @@ class C(object):
     def C(self, value):
         self.__C = value
         
-    ### END OF 'C' CLASS ###
+        
