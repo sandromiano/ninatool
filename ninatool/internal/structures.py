@@ -356,9 +356,10 @@ class branch(Nlind):
         self.calc_inductance()
         self.calc_coeffs()
         
-    def interpolate_results(self, phi_grid = default_phase_array):
+    def interpolate_results(self, phi_grid = default_phase_array, 
+                            bypass_multivalued = False):
         
-            if self.__multivalued:
+            if self.__multivalued and not bypass_multivalued:
                 print('Cannot interpolate multivalued results (yet).')
             else:
                 for elem in self.elements:
@@ -562,9 +563,11 @@ class loop(Nlind):
         
         self.calc_coeffs()
         
-    def interpolate_results(self, phi_grid = default_phase_array):
+    def interpolate_results(self, phi_grid = default_phase_array, 
+                            bypass_multivalued = False):
         
-        self.associated_branch.interpolate_results(phi_grid = phi_grid)
+        self.associated_branch.interpolate_results(phi_grid = phi_grid, 
+                                                   bypass_multivalued=bypass_multivalued)
         self.update()
         
     def calc_Nloops_mask(self):
