@@ -26,7 +26,6 @@ snail = loop(left_branch = left_elements,
              right_branch = right_elements, 
              stray_inductance = True,
              name = 'SNAIL')
-
 #%%
 #DEFINES PLOT FUNCTION
 def plot_un(order):
