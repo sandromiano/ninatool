@@ -17,10 +17,9 @@ spa.nlind.interpolate_results(np.linspace(0.45,0.5,101) * 2 * np.pi)
 #%%
 plt.plot(spa.nlind.flux/2/np.pi,spa.gn[0])
 plt.plot(spa.nlind.flux/2/np.pi, spa.gn[2])
- #%%
+#%%
 ninaGUI(spa)
 #%%
-
 unitsHandler = unitsConverter()
 unitsHandler.current_units = 6e-9
 
