@@ -41,7 +41,7 @@ class Nlind(object) :
         self.__observer = None
         self.__observed = []
         
-        self.__phi = 0
+        self.__phi = array([0])
         self.__i = 0
         self.__U = 0
         self.__L = 0
