@@ -392,14 +392,6 @@ class loop(Nlind):
                                           name = self.name + 
                                           '.associated_branch')
         
-        #creates a mask array to invert the sign of odd coefficients for left
-        #branch (default choice in the paper). Necessary to correctly compute 
-        #the dipole admittance when solving the loop equilibrium points via 
-        #the associated branch.
-        adm_mask_list = [(-1) ** i for i in range(self.order)]
-        #the reshape allows consistent ndarray operations
-        self.adm_mask = array(adm_mask_list).reshape(self.order, 1)
-        
         if self.has_Lstray:
             self.__Lstray = L(
                 L = .1,
@@ -467,15 +459,15 @@ class loop(Nlind):
     def left_adm(self):
         if len(self.left_elements) == 1:
             adm = self.left_elements[0].adm
-            return(adm * self.adm_mask)
+            return(adm)
         elif self.free_element not in self.left_elements:
             adm = self.invert_repr(sum(elem.imp for elem in self.left_elements))
-            return(adm * self.adm_mask)
+            return(adm)
         else:
             constrained_elements = list(set(self.left_elements) - set([self.free_element]))
             constrained_adm = self.invert_repr(sum(elem.imp for elem in constrained_elements))
             adm = self.series_combination(self.free_element.adm, constrained_adm)
-            return(adm * self.adm_mask)
+            return(adm)
     
     @property
     def right_adm(self):
@@ -549,6 +541,10 @@ class loop(Nlind):
     def calc_coeffs(self):
         logging.debug('called calc_coeffs method of loop ' + str(self.name))
         
+        for left_element in self.left_elements:
+            left_element.phi = - left_element.phi
+            left_element.calc_coeffs()
+            
         self.adm = self.Nloops_mask * (self.left_adm + self.right_adm)
         
         if self.has_Lstray:
@@ -626,7 +622,6 @@ class Nlosc:
         #hbar = 1
         power_array = array([i + 3 for i in range(self.nlind.order -1)])
 
-        
         power_array = power_array.reshape(self.nlind.order - 1, 1)
         
         factorial_array = array([factorial(i + 3) 
