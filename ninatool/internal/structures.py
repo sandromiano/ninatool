@@ -64,7 +64,8 @@ class branch(Nlind):
                  is_free = True, 
                  name = '', 
                  observe_elements = True,
-                 manipulate_elements = True):
+                 manipulate_elements = True,
+                 is_associated = False):
         '''
         Parameters
         ----------
@@ -96,6 +97,7 @@ class branch(Nlind):
         self.__multivalued = False
         self.__observe_elements = observe_elements
         self.__manipulate_elements = manipulate_elements
+        self.__is_associated = is_associated
         #parses the branch to identify the free JJ and the constrained elements
         self.parse()
         #if required, the branch subscribes to receive update 
@@ -293,8 +295,10 @@ class branch(Nlind):
             self._Nlind__i = self.free_element.i
             for elem in self.constrained_elements:
                 elem.i = self._Nlind__i
-
-        self.calc_all()
+        if self.__is_associated:
+            self.calc_phase()
+        else:
+            self.calc_all()
     
     def update(self, parse = True):
         logging.debug('called update method of branch ' + str(self.name))
@@ -390,7 +394,8 @@ class loop(Nlind):
         self.__associated_branch = branch(elements = self.elements, 
                                           observe_elements = observe_elements,
                                           name = self.name + 
-                                          '.associated_branch')
+                                          '.associated_branch',
+                                          is_associated = True)
         
         if self.has_Lstray:
             self.__Lstray = L(

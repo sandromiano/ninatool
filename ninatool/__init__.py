@@ -1,2 +1,2 @@
 import logging
-logging.basicConfig(level = None)
+logging.basicConfig(level = logging.INFO)
