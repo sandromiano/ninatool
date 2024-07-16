@@ -333,8 +333,20 @@ class branch(Nlind):
         
         if self.is_linear or len(self.constrained_elements) == 0:
             self.adm = self.free_element.adm
-        else:
+        elif not self.is_free:
             self.imp = sum([elem.imp for elem in self.elements])
+        else:             
+            #for the constrained elements, the expansion coefficients can
+            #be computed with the impedance-like representation and then
+            #inverted (the invert_repr map can still be singular if there is
+            #a constrained JJ with same critical current as the free JJ)
+            constrained_imp = sum([elem.imp for elem in self.constrained_elements])
+            constrained_adm = self.invert_repr(constrained_imp)
+            #the total branch expansion coefficients are then obtained
+            #combining the free JJ admittance-like with the total constrained
+            #elements admittance-like coefficients.
+            self.adm = self.series_combination(self.free_element.adm, 
+                                               constrained_adm)
     
     def calc_all(self):
         logging.debug('called calc_all method of branch '
@@ -453,8 +465,13 @@ class loop(Nlind):
         if len(self.left_elements) == 1:
             adm = self.left_elements[0].adm
             return(adm)
-        else:
+        elif self.free_element not in self.left_elements:
             adm = self.invert_repr(sum(elem.imp for elem in self.left_elements))
+            return(adm)
+        else:
+            constrained_elements = list(set(self.left_elements) - set([self.free_element]))
+            constrained_adm = self.invert_repr(sum(elem.imp for elem in constrained_elements))
+            adm = self.series_combination(self.free_element.adm, constrained_adm)
             return(adm)
     
     @property
@@ -462,8 +479,13 @@ class loop(Nlind):
         if len(self.right_elements) == 1:
             adm = self.right_elements[0].adm
             return(adm)
-        else:
+        elif self.free_element not in self.right_elements:
             adm = self.invert_repr(sum(elem.imp for elem in self.right_elements))
+            return(adm)
+        else:
+            constrained_elements = list(set(self.right_elements) - set([self.free_element]))
+            constrained_adm = self.invert_repr(sum(elem.imp for elem in constrained_elements))
+            adm = self.series_combination(self.free_element.adm, constrained_adm)
             return(adm)
         
     @property
@@ -531,7 +553,7 @@ class loop(Nlind):
         self.adm = self.Nloops_mask * (self.left_adm + self.right_adm)
         
         if self.has_Lstray:
-            self.imp = self.Lstray.imp + self.imp
+            self.adm = self.series_combination(self.Lstray.adm, self.adm)
 
         
     def update(self):
