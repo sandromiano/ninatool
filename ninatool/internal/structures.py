@@ -295,10 +295,7 @@ class branch(Nlind):
             self._Nlind__i = self.free_element.i
             for elem in self.constrained_elements:
                 elem.i = self._Nlind__i
-        if self.__is_associated:
-            self.calc_phase()
-        else:
-            self.calc_all()
+        self.calc_all()
     
     def update(self, parse = True):
         logging.debug('called update method of branch ' + str(self.name))
@@ -363,11 +360,8 @@ class branch(Nlind):
             if self.__multivalued and not bypass_multivalued:
                 print('Cannot interpolate multivalued results (yet).')
             else:
-                for elem in self.elements:
-                    elem.phi = interp(phi_grid, self.phi, elem.phi)
-
-                self._Nlind__i = self.free_element.i
-                self.calc_all()
+                self.free_phi = interp(phi_grid, self.phi, \
+                                               self.free_phi)
                 
 class loop(Nlind):
     
@@ -566,7 +560,6 @@ class loop(Nlind):
         
         self.associated_branch.interpolate_results(phi_grid = phi_grid, 
                                                    bypass_multivalued=bypass_multivalued)
-        self.update()
         
     def calc_Nloops_mask(self):
         Nloops_mask = array([self.Nloops ** -(i + 1) for i in range(self.order)])

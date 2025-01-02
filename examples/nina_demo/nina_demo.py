@@ -27,6 +27,8 @@ snail = loop(left_branch = left_elements,
              stray_inductance = True,
              name = 'SNAIL')
 #%%
+plt.scatter(snail.flux, snail.adm[0])
+#%%
 #DEFINES PLOT FUNCTION
 def plot_un(order):
     #THE "0" INDEX CORRESPONDS TO SECOND ORDER EXPANSION OF POTENTIAL ENERGY
