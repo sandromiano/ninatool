@@ -1,6 +1,4 @@
-pi = 3.141592653589793
-h = 6.62607015e-34
-elementary_charge = 1.602176634e-19
+from scipy.constants import pi, h, elementary_charge
 
 Phi0 = h / (2 * elementary_charge)
 
@@ -33,3 +31,19 @@ class unitsConverter(object):
     @current_units.setter
     def current_units(self, value):
         self.__current_units = value
+    
+    @inductance_units.setter
+    def inductance_units(self, value):
+        self.__current_units *= self.inductance_units / value
+    
+    @energy_units.setter
+    def energy_units(self, value):
+        self.__current_units *= value / self.energy_units
+    
+    @capacitance_units.setter
+    def capacitance_units(self, value):
+        self.__current_units *= self.capacitance_units / value
+    
+    @frequency_units.setter
+    def frequency_units(self, value):
+        self.__current_units *= value / self.frequency_units
