@@ -41,7 +41,7 @@ class Nlind(object) :
         self.__observer = None
         self.__observed = []
         
-        self.__phi = array([0])
+        self.__phi = 0
         self.__i = 0
         self.__U = 0
         self.__L = 0
@@ -165,10 +165,7 @@ class Nlind(object) :
     @phi.setter
     def phi(self, phi):
         
-        if not isinstance(phi, ndarray):
-            if check_real_number(phi):
-                phi = array([phi])
-            else:
+        if not isinstance(phi, ndarray) and not check_real_number(phi):
                 raise ValueError("Cannot set " + self.name + ".phi. Value " +\
                                  "needs to be either an array or real number.")
         
@@ -311,7 +308,10 @@ class L(Nlind):
         #impedance of a linear inductance is nonzero only for first order
         imp_list = [self.L0] + [0.0 for i in range(self.order - 1)]
         #the reshape allows consistent ndarray operations
-        self.imp = array(imp_list).reshape(self.order, 1)
+        if isinstance(self.i, ndarray):
+            self.imp = array(imp_list).reshape(self.order, 1)
+        else:
+            self.imp = array(imp_list)
     
     ### END OF 'L' CLASS ###
 
@@ -355,7 +355,7 @@ class J(Nlind):
     @property
     def sector(self):
         '''
-        Returns bool flag marking if the J instance is a "free JJ".
+        Returns "sector" of the JJ (significant only if constrained).
         '''
         return(self.__sector)
     
@@ -474,7 +474,7 @@ class NW(Nlind):
     @property
     def sector(self):
         '''
-        Returns bool flag marking if the J instance is a "free JJ".
+        Returns "sector" of the NW (only if is constrained).
         '''
         return(self.__sector)
 
@@ -621,11 +621,11 @@ class NW(Nlind):
 
 class C(object):
     
-    def __init__(self, name = ''):
+    def __init__(self, C, name = ''):
         
         self.__kind = 'C'
         self.__name = name
-        self.__C = 1
+        self.__C = C
     
     @property
     def kind(self):

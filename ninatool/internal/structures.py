@@ -1,5 +1,5 @@
 import logging
-from numpy import pi, linspace, array, sqrt, interp
+from numpy import pi, linspace, array, sqrt, interp, ndarray
 from math import factorial
 from .elements import Nlind, L, J, C
 from .support_functions import check_order
@@ -396,7 +396,9 @@ class loop(Nlind):
                 L = .1,
                 order = self.order, 
                 name = self.name + '.Lstray')
-            
+        
+        ### THIS IS A HACK TO ALLOW NDARRAY OPERATIONS WITH STRAY INDUCTANCE
+        self.__Lstray.i = array([0])
         self.Nloops = 1
         
         if observe_elements:
@@ -452,6 +454,7 @@ class loop(Nlind):
     
     @property
     def Nloops_mask(self):
+        self.calc_Nloops_mask()
         return(self.__Nloops_mask)
 
     @property
@@ -563,7 +566,10 @@ class loop(Nlind):
         
     def calc_Nloops_mask(self):
         Nloops_mask = array([self.Nloops ** -(i + 1) for i in range(self.order)])
-        self.__Nloops_mask = Nloops_mask.reshape(self.order, 1)
+        if isinstance(self.free_phi, ndarray):
+            self.__Nloops_mask = Nloops_mask.reshape(self.order, 1)
+        else:
+            self.__Nloops_mask = Nloops_mask
         
 class Nlosc:
     
