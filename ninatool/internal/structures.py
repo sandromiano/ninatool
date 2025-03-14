@@ -1,5 +1,5 @@
 import logging
-from numpy import pi, linspace, array, sqrt, interp, ndarray
+from numpy import pi, linspace, array, sqrt, interp, ndarray, diff
 from math import factorial
 from .elements import Nlind, L, J, C
 from .support_functions import check_order
@@ -358,8 +358,11 @@ class branch(Nlind):
                             bypass_multivalued = False):
         
             if self.__multivalued and not bypass_multivalued:
-                print('Cannot interpolate multivalued results (yet).')
+                raise NotImplementedError('Cannot interpolate multivalued results (yet).')
+            elif not all(diff(phi_grid) > 0):
+                raise ValueError('"phi_grid" must be a monotonically increasing array.')
             else:
+                
                 self.free_phi = interp(phi_grid, self.phi, \
                                                self.free_phi)
                 
@@ -396,9 +399,9 @@ class loop(Nlind):
                 L = .1,
                 order = self.order, 
                 name = self.name + '.Lstray')
-        
-        ### THIS IS A HACK TO ALLOW NDARRAY OPERATIONS WITH STRAY INDUCTANCE
-        self.__Lstray.i = array([0])
+            ### THIS IS TO ALLOW NDARRAY OPERATIONS WITH STRAY INDUCTANCE
+            self.__Lstray.i = array([0])
+            
         self.Nloops = 1
         
         if observe_elements:
