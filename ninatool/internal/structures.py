@@ -396,9 +396,9 @@ class loop(Nlind):
                 L = .1,
                 order = self.order, 
                 name = self.name + '.Lstray')
-        
-        ### THIS IS A HACK TO ALLOW NDARRAY OPERATIONS WITH STRAY INDUCTANCE
-        self.__Lstray.i = array([0])
+           ### THIS IS A HACK TO ALLOW NDARRAY OPERATIONS WITH STRAY INDUCTANCE
+            self.__Lstray.i = array([0])
+            
         self.Nloops = 1
         
         if observe_elements:
