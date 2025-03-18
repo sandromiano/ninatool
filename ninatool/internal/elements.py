@@ -478,7 +478,6 @@ class NW(Nlind):
         Returns bool flag marking if the J instance is a "free JJ".
         '''
         return(self.__is_free)
-    
     @property
     def sector(self):
         '''
