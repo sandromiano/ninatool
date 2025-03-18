@@ -270,6 +270,10 @@ class L(Nlind):
     def EL(self):
         return(1/self.L0)
     
+    @EL.setter
+    def EL(self, value):
+        self.ic = value
+    
     ### CLASS-SPECIFIC SETTERS, OVERRIDE Nlind ONES    
 
     ### NONE ###    
@@ -377,6 +381,10 @@ class J(Nlind):
             self.calc_coeffs()
             if self.observer is not None:
                 self.observer.update()
+    
+    @EJ.setter
+    def EJ(self, value):
+        self.ic = value
 
     ### CLASS-SPECIFIC METHODS, OVERRIDE Nlind ONES
 
@@ -646,5 +654,9 @@ class C(object):
     @C.setter
     def C(self, value):
         self.__C = value
+        
+    @EC.setter
+    def EC(self, value):
+        self.C = 1/value
         
     ### END OF 'C' CLASS ###
