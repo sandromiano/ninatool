@@ -1,10 +1,12 @@
 from sympy import symbols, Function, diff, apart
 from numpy import array
 import os
+import sys
 
 ### FOR BUILD
 
 build = False
+TEMP_RECURSION_LIMIT = int(1e4)
 
 if build:
     symbolic_maps_dir = './mapping_functions/'
@@ -124,6 +126,8 @@ def series_combination_partial(order):
     
     def series_combination(a_adm, b_adm):
         
-        return(array([eval(f, {'a': a_adm, 'b' : b_adm}) for f in fs]))
-    
+        vals = array([eval(f, {'a': a_adm, 'b' : b_adm}) for f in fs])
+
+        return(vals)
+        
     return(series_combination)
