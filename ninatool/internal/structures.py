@@ -100,6 +100,7 @@ class branch(Nlind):
         self.__is_associated = is_associated
         #parses the branch to identify the free JJ and the constrained elements
         self.parse()
+        
         #if required, the branch subscribes to receive update 
         #notifications from its elements.
         if self.__manipulate_elements and self.__observe_elements:
@@ -268,8 +269,15 @@ class branch(Nlind):
                 #free_element.phi is only assigned here if the branch is
                 #allowed to manipulate the elements and has already been
                 #assigned a free_phi value
+                
         if self.__manipulate_elements and self.free_phi is not None:
+            ### if free element changes and it has new polarity, switch all polarities.
+            if self.free_element.polarity == -1:
+                for element in self.elements:
+                    element.polarity *= -1
             self.free_element.phi = self.free_phi
+            
+        
             
     def check_multivalued(self):
         logging.debug('called check_multivalued method of branch '
@@ -400,15 +408,21 @@ class loop(Nlind):
         #points of the loop
         #changes the polarity of the elements in the left loop for correctly
         #computing nonlinear expansion coefficients
-        
-        for right_element in self.right_elements:
-            right_element.polarity = -1
 
         self.__associated_branch = branch(elements = self.elements, 
                                           observe_elements = observe_elements,
                                           name = self.name + 
                                           '.associated_branch',
                                           is_associated = True)
+        
+        if self.free_element in self.left_elements:
+            for element in self.right_elements:
+                element.polarity = -1
+        elif self.free_element in self.right_elements:
+            for element in self.left_elements:
+                element.polarity = -1
+        
+        self.associated_branch.update()
         
         if self.has_Lstray:
             self.__Lstray = L(
