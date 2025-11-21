@@ -447,7 +447,8 @@ class loop(Nlind):
     
     @property
     def flux(self):
-        return(self.associated_branch.phi)
+        phases = [elem.polarity * elem.phi for elem in self.elements]
+        return(sum(phases))
     
     @property
     def free_phi(self):
