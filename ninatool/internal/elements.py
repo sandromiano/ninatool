@@ -41,6 +41,7 @@ class Nlind(object) :
         self.__observer = None
         self.__observed = []
         
+        self.__polarity = +1
         self.__phi = 0
         self.__i = 0
         self.__U = 0
@@ -97,6 +98,13 @@ class Nlind(object) :
         Returns a list of nlind instances observed by self. Useful for debug.
         '''
         return(self.__observed)
+    
+    @property
+    def polarity(self):
+        '''
+        Returns the polarity of the element (+1 or -1).
+        '''
+        return(self.__polarity)
     
     @property
     def phi(self):
@@ -161,6 +169,12 @@ class Nlind(object) :
     @observer.setter
     def observer(self, observer):
         self.__observer = observer
+        
+    @polarity.setter
+    def polarity(self, polarity):
+        if polarity not in [+1, -1]:
+            raise ValueError('Polarity must be either "+1" or "-1".')
+        self.__polarity = polarity
 
     @phi.setter
     def phi(self, phi):
@@ -169,7 +183,7 @@ class Nlind(object) :
                 raise ValueError("Cannot set " + self.name + ".phi. Value " +\
                                  "needs to be either an array or real number.")
         
-        self.__phi = phi
+        self.__phi = self.polarity * phi
         self.calc_current()
         self.calc_potential()
         self.calc_inductance()
@@ -177,7 +191,7 @@ class Nlind(object) :
 
     @i.setter
     def i(self, i):
-        self.__i = i
+        self.__i = self.polarity * i
         self.calc_phase()
         self.calc_potential()
         self.calc_inductance()

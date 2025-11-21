@@ -4,7 +4,7 @@ from math import factorial
 from .elements import Nlind, L, J, C
 from .support_functions import check_order
 
-NUM_POINTS = 1000 # number of points for default phase array
+NUM_POINTS = 1001 # number of points for default phase array
 NUM_PERIODS = 2 # number of periods for default phase array
 
 default_phase_array = NUM_PERIODS * 2 * pi * linspace(-.5, .5, NUM_POINTS)
@@ -349,11 +349,11 @@ class branch(Nlind):
             #the total branch expansion coefficients are then obtained
             #combining the free JJ admittance-like with the total constrained
             #elements admittance-like coefficients.
-            if self.multivalued:
-                self.adm = self.series_combination(self.free_element.adm, 
-                                                   constrained_adm)
-            else:
-                self.adm = self.invert_repr(self.free_element.imp + constrained_imp)
+            # if self.multivalued:
+            self.adm = self.series_combination(self.free_element.adm, 
+                                               constrained_adm)
+            # else:
+            #     self.adm = self.invert_repr(self.free_element.imp + constrained_imp)
     
     def calc_all(self):
         logging.debug('called calc_all method of branch '
@@ -398,6 +398,12 @@ class loop(Nlind):
         self._Nlind__name = name
         #the associated branch is responsible for computing the equilibrium
         #points of the loop
+        #changes the polarity of the elements in the left loop for correctly
+        #computing nonlinear expansion coefficients
+        
+        for right_element in self.right_elements:
+            right_element.polarity = -1
+
         self.__associated_branch = branch(elements = self.elements, 
                                           observe_elements = observe_elements,
                                           name = self.name + 
@@ -483,10 +489,10 @@ class loop(Nlind):
             constrained_imp = sum(elem.imp for elem in constrained_elements)
             constrained_adm = self.invert_repr(constrained_imp)
             
-            if self.multivalued:
-                adm = self.series_combination(self.free_element.adm, constrained_adm)
-            else:
-                adm = self.invert_repr(self.free_element.imp + constrained_imp)
+        # if self.multivalued:
+            adm = self.series_combination(self.free_element.adm, constrained_adm)
+            # else:
+            #     adm = self.invert_repr(self.free_element.imp + constrained_imp)
             
             return(adm)
     
@@ -503,15 +509,15 @@ class loop(Nlind):
             constrained_imp = sum(elem.imp for elem in constrained_elements)
             constrained_adm = self.invert_repr(constrained_imp)
             
-            if self.multivalued:
-                adm = self.series_combination(self.free_element.adm, constrained_adm)
-            else:
-                adm = self.invert_repr(self.free_element.imp + constrained_imp)
+            # if self.multivalued:
+            adm = self.series_combination(self.free_element.adm, constrained_adm)
+            # else:
+            #     adm = self.invert_repr(self.free_element.imp + constrained_imp)
             return(adm)
         
     @property
     def left_phi(self):
-        return(sum(- elem.phi for elem in self.left_elements))
+        return(sum(elem.phi for elem in self.left_elements))
     
     @property
     def right_phi(self):
@@ -567,17 +573,18 @@ class loop(Nlind):
     def calc_coeffs(self):
         logging.debug('called calc_coeffs method of loop ' + str(self.name))
         
-        for left_element in self.left_elements:
-            left_element.phi = - left_element.phi
-            left_element.calc_coeffs()
+        # for left_element in self.left_elements:
+        #     left_element.phi = - left_element.phi
+        #     left_element.calc_coeffs()
+        #     left_element.phi = - left_element.phi
             
         self.adm = self.Nloops_mask * (self.left_adm + self.right_adm)
         
         if self.has_Lstray:
-            if self.multivalued:
-                self.adm = self.series_combination(self.Lstray.adm, self.adm)
-            else:
-                self.imp = self.Lstray.imp + self.imp
+            # if self.multivalued:
+            self.adm = self.series_combination(self.Lstray.adm, self.adm)
+            # else:
+            #     self.imp = self.Lstray.imp + self.imp
 
         
     def update(self):
@@ -588,7 +595,7 @@ class loop(Nlind):
     def interpolate_results(self, phi_grid = default_phase_array, 
                             bypass_multivalued = False):
         
-        self.associated_branch.interpolate_results(phi_grid = phi_grid, 
+        self.associated_branch.interpolate_results(phi_grid=phi_grid, 
                                                    bypass_multivalued=bypass_multivalued)
         
     def calc_Nloops_mask(self):

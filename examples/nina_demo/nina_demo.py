@@ -36,7 +36,7 @@ def plot_un(order):
     plt.xlabel(r'$\bar{\varphi}_\mathrm{e}/2\pi$')
     plt.ylabel(r'$u_' + str(order) + '$', rotation = 0, labelpad = 10)
 #%%
-plot_un(order = 2)
+plot_un(order = 4)
 #%%
 J1.ic = .5
 L0.L0 = 2
