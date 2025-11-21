@@ -4,7 +4,7 @@ from math import factorial
 from .elements import Nlind, L, J, C
 from .support_functions import check_order
 
-NUM_POINTS = 1001 # number of points for default phase array
+NUM_POINTS = 1000 # number of points for default phase array
 NUM_PERIODS = 2 # number of periods for default phase array
 
 default_phase_array = NUM_PERIODS * 2 * pi * linspace(-.5, .5, NUM_POINTS)
@@ -285,6 +285,10 @@ class branch(Nlind):
             self.__multivalued = True
         else:
             self.__multivalued = False
+        
+        if self.multivalued and self.order > 10:
+            raise ValueError('A multivalued circuit cannot be currently ' + \
+                             'expanded to nonlinear orders greater than 10.')
 
     def solve(self):
         logging.debug('called solve method of branch ' + str(self.name))
@@ -295,7 +299,10 @@ class branch(Nlind):
             self._Nlind__i = self.free_element.i
             for elem in self.constrained_elements:
                 elem.i = self._Nlind__i
-        self.calc_all()
+        if self.__is_associated:
+            self.calc_phase()
+        else:
+            self.calc_all()
     
     def update(self, parse = True):
         logging.debug('called update method of branch ' + str(self.name))
@@ -342,8 +349,11 @@ class branch(Nlind):
             #the total branch expansion coefficients are then obtained
             #combining the free JJ admittance-like with the total constrained
             #elements admittance-like coefficients.
-            self.adm = self.series_combination(self.free_element.adm, 
-                                               constrained_adm)
+            if self.multivalued:
+                self.adm = self.series_combination(self.free_element.adm, 
+                                                   constrained_adm)
+            else:
+                self.adm = self.invert_repr(self.free_element.imp + constrained_imp)
     
     def calc_all(self):
         logging.debug('called calc_all method of branch '
@@ -470,8 +480,14 @@ class loop(Nlind):
             return(adm)
         else:
             constrained_elements = list(set(self.left_elements) - set([self.free_element]))
-            constrained_adm = self.invert_repr(sum(elem.imp for elem in constrained_elements))
-            adm = self.series_combination(self.free_element.adm, constrained_adm)
+            constrained_imp = sum(elem.imp for elem in constrained_elements)
+            constrained_adm = self.invert_repr(constrained_imp)
+            
+            if self.multivalued:
+                adm = self.series_combination(self.free_element.adm, constrained_adm)
+            else:
+                adm = self.invert_repr(self.free_element.imp + constrained_imp)
+            
             return(adm)
     
     @property
@@ -484,8 +500,13 @@ class loop(Nlind):
             return(adm)
         else:
             constrained_elements = list(set(self.right_elements) - set([self.free_element]))
-            constrained_adm = self.invert_repr(sum(elem.imp for elem in constrained_elements))
-            adm = self.series_combination(self.free_element.adm, constrained_adm)
+            constrained_imp = sum(elem.imp for elem in constrained_elements)
+            constrained_adm = self.invert_repr(constrained_imp)
+            
+            if self.multivalued:
+                adm = self.series_combination(self.free_element.adm, constrained_adm)
+            else:
+                adm = self.invert_repr(self.free_element.imp + constrained_imp)
             return(adm)
         
     @property
@@ -553,7 +574,10 @@ class loop(Nlind):
         self.adm = self.Nloops_mask * (self.left_adm + self.right_adm)
         
         if self.has_Lstray:
-            self.adm = self.series_combination(self.Lstray.adm, self.adm)
+            if self.multivalued:
+                self.adm = self.series_combination(self.Lstray.adm, self.adm)
+            else:
+                self.imp = self.Lstray.imp + self.imp
 
         
     def update(self):

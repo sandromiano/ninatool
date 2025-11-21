@@ -11,12 +11,12 @@ class rfsquid(loop):
                  name = 'rfsquid',
                  **kwargs):
         
-        self.J0 = J(i0, order = order, name = 'J0')
-        self.L0 = L(L0, order = order, name = 'L0')
-        self.L1 = L(L1, order = order, name = 'L1')
+        _J0 = J(i0, order = order, name = 'J0')
+        _L0 = L(L0, order = order, name = 'L0')
+        _L1 = L(L1, order = order, name = 'L1')
 
-        left_branch = [self.J0, self.L0]
-        right_branch = [self.L1]
+        left_branch = [_J0, _L0]
+        right_branch = [_L1]
         
         super().__init__(left_branch = left_branch,
                          right_branch = right_branch,
@@ -34,13 +34,13 @@ class dcsquid(loop):
                  name = 'dcsquid',
                  **kwargs):
         
-        self.J0 = J(i0, order = order, name = 'J0')
-        self.L0 = L(L0, order = order, name = 'L0')
-        self.J1 = J(i1, order = order, name = 'J1')
-        self.L1 = L(L1, order = order, name = 'L1')
+        _J0 = J(i0, order = order, name = 'J0')
+        _L0 = L(L0, order = order, name = 'L0')
+        _J1 = J(i1, order = order, name = 'J1')
+        _L1 = L(L1, order = order, name = 'L1')
  
-        left_branch = [self.J0, self.L0]
-        right_branch = [self.J1, self.L1]
+        left_branch = [_J0, _L0]
+        right_branch = [_J1, _L1]
         
         super().__init__(left_branch = left_branch,
                          right_branch = right_branch,
@@ -50,19 +50,20 @@ class dcsquid(loop):
 class snail(loop):
     
     def __init__(self,
+                 i0 = 1,
                  a = .2,
                  order = 3,
                  name = 'snail',
                  **kwargs):
         
-        self.J0 = J(a, order = order, name = 'J0')
-        self.J1 = J(1, order = order, name = 'J1')
-        self.J2 = J(1, order = order, name = 'J2')
-        self.J3 = J(1, order = order, name = 'J3')
+        _J0 = J(a * i0, order = order, name = 'J0')
+        _J1 = J(i0, order = order, name = 'J1')
+        _J2 = J(i0, order = order, name = 'J2')
+        _J3 = J(i0, order = order, name = 'J3')
 
 
-        left_branch = [self.J0]
-        right_branch = [self.J1, self.J2, self.J3]
+        left_branch = [_J0]
+        right_branch = [_J1, _J2, _J3]
         
         super().__init__(left_branch = left_branch,
                          right_branch = right_branch,
